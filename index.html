@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Simulasi Ujian EHE v2 — Blueprint Exam 112-52</title>
+<style>
+:root{
+  --bg:#edf1ef; --surface:#ffffff; --surface2:#f4f7f5; --ink:#15242c; --muted:#5b6f77;
+  --line:#d5dedb; --accent:#0b6e5d; --accent-ink:#ffffff; --accent-soft:#e0f0ec;
+  --amber:#9a6a00; --amber-soft:#fdf0d3; --danger:#b3261e; --danger-soft:#fbe7e5;
+  --ok:#146c2e; --ok-soft:#e2f2e4; --chip:#e7edeb;
+  --shadow:0 2px 10px rgba(21,36,44,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c1416; --surface:#152226; --surface2:#1a2a2f; --ink:#e4efec; --muted:#9db4ad;
+    --line:#2b3e44; --accent:#2fae94; --accent-ink:#06231d; --accent-soft:#12362f;
+    --amber:#e3b341; --amber-soft:#3a2f10; --danger:#f0928a; --danger-soft:#3d1a17;
+    --ok:#7fd08d; --ok-soft:#17301c; --chip:#22343a;
+    --shadow:0 2px 10px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;font-size:16px;line-height:1.55}
+button,[role="button"],select,input:not([type="checkbox"]){min-height:44px}
+button{font:inherit;cursor:pointer}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 48px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:24px}
+h1{font-size:26px;line-height:1.25;margin:0 0 6px}
+h2{font-size:20px;margin:0 0 10px}
+h3{font-size:16px;margin:18px 0 8px}
+p{margin:0 0 10px}
+.small{font-size:13px;color:var(--muted)}
+.center{text-align:center}
+.hidden{display:none!important}
+label.flabel{display:block;font-weight:600;margin:14px 0 6px}
+input[type="text"]{width:100%;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+input[type="text"]:focus{outline:2px solid var(--accent);outline-offset:1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);padding:10px 20px;font-weight:600;text-decoration:none}
+.btn.secondary{background:var(--surface);color:var(--accent);border-color:var(--accent)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btnrow .spacer{flex:1}
+.err{color:var(--danger);font-weight:600;min-height:1.4em}
+.notice{border:1px solid var(--amber);background:var(--amber-soft);border-radius:8px;padding:12px 14px;font-size:14px;margin:14px 0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0}
+.fact{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center}
+.fact b{display:block;font-size:22px}
+.fact span{font-size:12.5px;color:var(--muted)}
+table.bp{width:100%;border-collapse:collapse;font-size:14px}
+table.bp th,table.bp td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+table.bp th{color:var(--muted);font-size:12.5px;text-transform:none}
+table.bp td.n,table.bp th.n{text-align:right;white-space:nowrap}
+.langtoggle{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.langtoggle button{border:0;background:var(--surface);color:var(--ink);padding:8px 14px;font-weight:600;min-height:40px}
+.langtoggle button.on{background:var(--accent);color:var(--accent-ink)}
+.credit{margin-top:26px;text-align:center;font-size:13px;color:var(--muted)}
+/* exam */
+.examtop{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+.examtop .in{max-width:880px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.examtop .who{font-weight:700}
+.examtop .mode{font-size:13px;color:var(--muted)}
+.timer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:20px;background:var(--chip);border-radius:8px;padding:4px 12px}
+.timer.low{background:var(--danger-soft);color:var(--danger)}
+.progressbar{height:8px;background:var(--chip);border-radius:99px;overflow:hidden;margin:14px 0 4px}
+.progressbar i{display:block;height:100%;background:var(--accent);width:0%}
+.qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.qcount{font-weight:700}
+.tag{font-size:12px;background:var(--accent-soft);color:var(--accent);border-radius:99px;padding:3px 10px;font-weight:600}
+.tag.flag{background:var(--amber-soft);color:var(--amber)}
+.qtext{font-size:18px;font-weight:600;margin:8px 0 4px}
+.qtext-id{font-size:15.5px;color:var(--muted);margin:0 0 6px}
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;color:var(--ink)}
+.opt .letter{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-top:1px}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .letter{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt .oid{display:block;font-size:14px;color:var(--muted)}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:8px;margin-top:12px}
+.navgrid button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;font-weight:600;min-height:44px;position:relative}
+.navgrid button.answered{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.navgrid button.current{outline:2.5px solid var(--ink);outline-offset:1px}
+.navgrid button .dot{position:absolute;top:3px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--amber)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(10,18,20,.55);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:var(--surface);border-radius:12px;max-width:520px;width:100%;padding:24px;box-shadow:var(--shadow);max-height:88vh;overflow:auto}
+/* review + results */
+.revitem{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding:9px 2px;font-size:14.5px}
+.pill{white-space:nowrap;flex:0 0 auto}
+.revitem button{flex:0 0 auto}
+.pill{font-size:12px;border-radius:99px;padding:2px 9px;font-weight:700}
+.pill.ans{background:var(--ok-soft);color:var(--ok)}
+.pill.blank{background:var(--danger-soft);color:var(--danger)}
+.pill.mark{background:var(--amber-soft);color:var(--amber)}
+.scorebig{font-size:52px;font-weight:800;line-height:1}
+.verdict{font-size:22px;font-weight:800;letter-spacing:.4px}
+.verdict.pass{color:var(--ok)} .verdict.fail{color:var(--danger)}
+.dbar{height:9px;background:var(--chip);border-radius:99px;overflow:hidden}
+.dbar i{display:block;height:100%;background:var(--accent)}
+.dbar i.weak{background:var(--danger)}
+.ansitem{border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:12px;background:var(--surface)}
+.ansitem .st{font-weight:800;font-size:13px}
+.ansitem .st.right{color:var(--ok)} .ansitem .st.wrong{color:var(--danger)}
+.ansitem .expl{background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:14.5px;margin-top:8px}
+.ansitem .expl .eid{color:var(--muted);font-size:14px}
+ul.tight{margin:6px 0 10px;padding-left:20px}
+ul.tight li{margin:3px 0}
+@media (max-width:560px){ .card{padding:18px} h1{font-size:22px} .qtext{font-size:16.5px} .scorebig{font-size:42px} }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<main id="scr-login" class="wrap">
+  <div class="card">
+    <p class="small" style="font-weight:700;letter-spacing:.3px">EC-COUNCIL EHE v2 &bull; EXAM 112-52 &bull; SIMULATION</p>
+    <h1>Simulasi Ujian Ethical Hacking Essentials (EHE) v2</h1>
+    <p>Simulasi mengikuti blueprint resmi EHE v2: <b>75 soal pilihan ganda</b>, waktu <b>120 menit</b>, dan nilai kelulusan <b>70% (minimal 53 jawaban benar)</b> — sama seperti format ujian sebenarnya.</p>
+    <div class="notice"><b>Disclaimer:</b> Semua soal di simulasi ini adalah soal latihan baru yang ditulis berdasarkan blueprint resmi EC-Council EHE v2 (Exam 112-52). Soal ini <b>bukan</b> soal resmi EC-Council — soal ujian resmi tidak dipublikasikan.<br><span style="color:var(--muted)">All questions are original practice questions based on the official blueprint; they are not official EC-Council exam questions.</span></div>
+    <form id="login-form" novalidate>
+      <label class="flabel" for="inp-name">Nama lengkap / Full name</label>
+      <input type="text" id="inp-name" autocomplete="name" placeholder="Contoh: Budi Santoso" />
+      <p class="err" id="login-err"></p>
+      <div class="btnrow">
+        <button type="submit" class="btn" style="flex:1">Masuk / Enter</button>
+      </div>
+    </form>
+    <p class="credit">Dibuat oleh @budhisant2026</p>
+  </div>
+</main>
+
+<!-- ============ HOME / INSTRUCTIONS ============ -->
+<main id="scr-home" class="wrap hidden">
+  <div class="card">
+    <p class="small">Selamat datang, <b id="home-name"></b></p>
+    <h2>Petunjuk Ujian / Exam Instructions</h2>
+    <div class="facts">
+      <div class="fact"><b>75</b><span>Soal / Questions</span></div>
+      <div class="fact"><b>120:00</b><span>Menit / Minutes</span></div>
+      <div class="fact"><b>70%</b><span>Passing score</span></div>
+      <div class="fact"><b>53</b><span>Minimal benar / Min. correct</span></div>
+    </div>
+    <ul class="tight">
+      <li>Satu soal tampil dalam satu layar. Pilih satu jawaban terbaik untuk setiap soal.</li>
+      <li>Timer berjalan mundur dari 120:00. Saat waktu habis, ujian otomatis dikumpulkan (auto-submit).</li>
+      <li>Gunakan <b>Mark for Review</b> untuk menandai soal yang ingin ditinjau lagi, dan navigator soal untuk melompat ke nomor mana pun.</li>
+      <li>Sebelum mengakhiri, Anda akan melihat layar <b>Review</b> berisi daftar soal yang belum dijawab dan yang ditandai.</li>
+      <li>Hasil akhir menampilkan skor, status lulus/gagal, rincian per domain blueprint, dan pembahasan tiap soal.</li>
+    </ul>
+    <h3>Bahasa soal / Question language</h3>
+    <div class="langtoggle" id="lang-home" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="both" class="on">EN + ID</button>
+      <button type="button" data-lang="id">ID</button>
+    </div>
+    <h3>Distribusi soal per domain (Blueprint 112-52)</h3>
+    <table class="bp"><thead><tr><th>Domain</th><th class="n">Soal</th></tr></thead><tbody id="bp-body"></tbody></table>
+    <div class="btnrow">
+      <button class="btn ghost" id="btn-change-name" type="button">Ganti nama</button>
+      <span class="spacer"></span>
+      <button class="btn" id="btn-start" type="button">Mulai Ujian / Start Exam</button>
+    </div>
+    <p class="credit">Dibuat oleh @budhisant2026</p>
+  </div>
+</main>
+
+<!-- ============ EXAM ============ -->
+<div id="scr-exam" class="hidden">
+  <div class="examtop"><div class="in">
+    <span class="who" id="exam-user"></span>
+    <span class="mode">EHE v2 Simulation &bull; 112-52</span>
+    <span class="timer" id="exam-timer">120:00</span>
+  </div></div>
+  <main class="wrap" style="padding-top:14px">
+    <div class="card">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13.5px;color:var(--muted)">
+        <span>Terjawab / Answered: <b id="exam-answered">0</b>/75</span>
+        <span>&bull;</span><span>Ditandai / Marked: <b id="exam-marked">0</b></span>
+        <span style="margin-left:auto"></span>
+        <div class="langtoggle" id="lang-exam" role="group" aria-label="Language">
+          <button type="button" data-lang="en">EN</button>
+          <button type="button" data-lang="both" class="on">EN + ID</button>
+          <button type="button" data-lang="id">ID</button>
+        </div>
+      </div>
+      <div class="progressbar"><i id="exam-progress"></i></div>
+      <div class="qmeta" style="margin-top:12px">
+        <span class="qcount" id="q-count">Question 1 of 75</span>
+        <span class="tag" id="q-cat"></span>
+        <span class="tag flag hidden" id="q-flagged">Marked for Review</span>
+      </div>
+      <p class="qtext" id="q-text"></p>
+      <p class="qtext-id" id="q-text-id"></p>
+      <div class="opts" id="q-opts"></div>
+      <div class="btnrow">
+        <button class="btn ghost" id="btn-prev" type="button">&larr; Sebelumnya</button>
+        <button class="btn secondary" id="btn-flag" type="button">Tandai / Mark for Review</button>
+        <span class="spacer"></span>
+        <button class="btn ghost" id="btn-navtoggle" type="button">Navigator</button>
+        <button class="btn" id="btn-next" type="button">Berikutnya &rarr;</button>
+      </div>
+      <div id="nav-panel" class="hidden">
+        <div class="navgrid" id="nav-grid"></div>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>Sudah dijawab</span>
+          <span><i style="background:var(--surface);border:1px solid var(--line)"></i>Belum dijawab</span>
+          <span><i style="background:var(--amber);border-radius:50%"></i>Ditandai (titik kuning)</span>
+          <span><i style="background:transparent;border:2px solid var(--ink)"></i>Soal saat ini (garis tepi)</span>
+        </div>
+      </div>
+      <div class="btnrow" style="border-top:1px solid var(--line);padding-top:16px">
+        <button class="btn ghost" id="btn-quit" type="button">Keluar / Quit</button>
+        <span class="spacer"></span>
+        <button class="btn danger" id="btn-toreview" type="button">Review &amp; Akhiri Ujian</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ REVIEW ============ -->
+<main id="scr-review" class="wrap hidden">
+  <div class="card">
+    <h2>Review sebelum mengakhiri / Review before finishing</h2>
+    <p class="small">Klik nomor soal untuk kembali ke soal tersebut. Pastikan tidak ada soal yang terlewat.</p>
+    <h3>Belum dijawab / Unanswered (<span id="rev-blank-n">0</span>)</h3>
+    <div id="rev-blank"></div>
+    <h3>Ditandai / Marked for review (<span id="rev-mark-n">0</span>)</h3>
+    <div id="rev-mark"></div>
+    <h3>Sudah dijawab / Answered (<span id="rev-ans-n">0</span>)</h3>
+    <div id="rev-ans"></div>
+    <div class="btnrow">
+      <button class="btn secondary" id="btn-back-exam" type="button">&larr; Kembali ke ujian</button>
+      <span class="spacer"></span>
+      <button class="btn danger" id="btn-endexam" type="button">End Exam — Kumpulkan</button>
+    </div>
+  </div>
+</main>
+
+<!-- ============ RESULT ============ -->
+<main id="scr-result" class="wrap hidden">
+  <div class="card center">
+    <p class="small">Hasil Simulasi EHE v2 (Exam 112-52) &bull; <span id="res-mode">Full Simulation</span></p>
+    <h2 id="res-name"></h2>
+    <p class="scorebig"><span id="res-score">0</span><span style="font-size:24px;color:var(--muted)"> / 75</span></p>
+    <p class="verdict" id="res-verdict"></p>
+    <p id="res-note" style="max-width:560px;margin:8px auto 0"></p>
+    <div class="facts" style="max-width:640px;margin:18px auto 0">
+      <div class="fact"><b id="res-pct">0%</b><span>Skor / Score</span></div>
+      <div class="fact"><b id="res-correct">0</b><span>Benar / Correct</span></div>
+      <div class="fact"><b id="res-wrong">0</b><span>Salah + kosong / Wrong + blank</span></div>
+      <div class="fact"><b id="res-time">0:00</b><span>Waktu terpakai / Time used</span></div>
+    </div>
+    <p class="small" style="margin-top:12px">Passing score ujian asli: 70% = minimal 53 dari 75 soal benar.</p>
+    <div class="btnrow" style="justify-content:center">
+      <button class="btn" id="btn-retry" type="button">Ulangi Simulasi / Retake</button>
+      <button class="btn ghost" id="btn-back-home" type="button">Ke Layar Awal</button>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Rincian per Domain / Score by Domain</h2>
+    <div id="res-cats"></div>
+  </div>
+  <div style="margin-top:16px">
+    <h2 style="padding:0 4px">Pembahasan / Answer Review</h2>
+    <p class="small" style="padding:0 4px">Hijau = jawaban benar. Pembahasan tampil mengikuti pilihan bahasa (EN / EN+ID / ID).</p>
+    <div id="res-list"></div>
+  </div>
+  <p class="credit">Dibuat oleh @budhisant2026</p>
+</main>
+
+<!-- ============ MODALS ============ -->
+<div id="modal-generic" class="overlay hidden">
+  <div class="modal">
+    <h2 id="modal-title">Konfirmasi</h2>
+    <p id="modal-text"></p>
+    <div class="btnrow">
+      <button class="btn ghost" id="modal-no" type="button">Batal / Cancel</button>
+      <span class="spacer"></span>
+      <button class="btn danger" id="modal-yes" type="button">Ya / Yes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+var DOMAINS=[
+ {n:1,en:"Information Security Fundamentals",id:"Dasar-Dasar Keamanan Informasi",count:7},
+ {n:2,en:"Ethical Hacking Fundamentals",id:"Dasar-Dasar Ethical Hacking",count:5},
+ {n:3,en:"Malware Threats and Countermeasures",id:"Ancaman Malware dan Penanggulangannya",count:7},
+ {n:4,en:"Ethical Hacking Phases",id:"Fase-Fase Ethical Hacking",count:8},
+ {n:5,en:"Password Cracking Techniques and Countermeasures",id:"Teknik Password Cracking dan Penanggulangannya",count:3},
+ {n:6,en:"Social Engineering Techniques and Countermeasures",id:"Teknik Social Engineering dan Penanggulangannya",count:5},
+ {n:7,en:"Network Level Attacks and Countermeasures",id:"Serangan Level Jaringan dan Penanggulangannya",count:8},
+ {n:8,en:"Web Application Attacks and Countermeasures",id:"Serangan Aplikasi Web dan Penanggulangannya",count:9},
+ {n:9,en:"Wireless Attacks and Countermeasures",id:"Serangan Nirkabel dan Penanggulangannya",count:5},
+ {n:10,en:"Mobile, IoT, and OT Attacks and Countermeasures",id:"Serangan Mobile, IoT, dan OT serta Penanggulangannya",count:9},
+ {n:11,en:"Cloud Computing Threats and Countermeasures",id:"Ancaman Cloud Computing dan Penanggulangannya",count:6},
+ {n:12,en:"Penetration Testing Fundamentals",id:"Dasar-Dasar Penetration Testing",count:3}
+];
+/* Format: {d:domain, a:correctIndex, en:[question,[4 options],explanation], id:[...]} */
+var QUESTIONS=[
+/* ===== Domain 1: Information Security Fundamentals (7) ===== */
+{d:1,a:1,en:["In the CIA triad, which principle is violated when an attacker modifies transaction amounts inside a banking database without permission?",["Confidentiality","Integrity","Availability","Authentication"],"Integrity means data is accurate and has not been altered in an unauthorized way. Changing stored amounts breaks data integrity, even if the data was never disclosed or taken offline."],
+id:["Dalam triad CIA, prinsip apa yang dilanggar ketika penyerang mengubah nominal transaksi di dalam database bank tanpa izin?",["Kerahasiaan (Confidentiality)","Integritas (Integrity)","Ketersediaan (Availability)","Otentikasi (Authentication)"],"Integrity berarti data akurat dan tidak diubah tanpa otorisasi. Mengubah nominal yang tersimpan merusak integritas data, meskipun data tidak bocor dan sistem tetap online."]},
+{d:1,a:2,en:["Which threat actor is best described as an organized group that attacks companies mainly to steal money and sell stolen data?",["Hacktivist","Script kiddie","Cybercriminal syndicate","Insider employee"],"Organized cybercriminal groups operate like businesses: they run ransomware, fraud, and data-theft operations for profit, unlike hacktivists (ideology) or script kiddies (low skill, curiosity)."],
+id:["Pelaku ancaman mana yang paling tepat digambarkan sebagai kelompok terorganisir yang menyerang perusahaan terutama untuk mencuri uang dan menjual data curian?",["Hacktivist","Script kiddie","Sindikat kriminal siber (cybercriminal syndicate)","Karyawan internal (insider)"],"Kelompok kriminal siber terorganisir beroperasi seperti bisnis: menjalankan ransomware, penipuan, dan pencurian data demi keuntungan, berbeda dengan hacktivist (ideologi) atau script kiddie (kemampuan rendah, rasa ingin tahu)."]},
+{d:1,a:0,en:["Which of the following is an asymmetric (public-key) algorithm?",["RSA","AES","DES","Blowfish"],"RSA uses a mathematically linked public and private key pair, so it is asymmetric. AES, DES, and Blowfish all use a single shared secret key and are symmetric algorithms."],
+id:["Manakah berikut ini yang merupakan algoritma asimetris (kunci publik)?",["RSA","AES","DES","Blowfish"],"RSA memakai pasangan kunci publik dan privat yang terkait secara matematis, jadi termasuk asimetris. AES, DES, dan Blowfish memakai satu kunci rahasia bersama dan termasuk algoritma simetris."]},
+{d:1,a:3,en:["A company publishes the SHA-256 hash of every software update it releases. What security purpose does this mainly serve?",["Encrypting the update so only customers can read it","Authenticating the user who downloads it","Speeding up the download","Letting users verify the file has not been tampered with"],"A cryptographic hash is a one-way fingerprint. If the downloaded file produces the same digest, users know the file is unchanged and uncorrupted; hashes do not encrypt or authenticate users."],
+id:["Sebuah perusahaan menerbitkan hash SHA-256 untuk setiap pembaruan perangkat lunak yang dirilisnya. Apa tujuan keamanan utamanya?",["Mengenkripsi pembaruan agar hanya pelanggan yang bisa membacanya","Mengotentikasi pengguna yang mengunduhnya","Mempercepat proses unduhan","Memungkinkan pengguna memverifikasi file tidak diubah pihak lain"],"Hash kriptografi adalah sidik jari satu arah. Jika file unduhan menghasilkan digest yang sama, pengguna tahu file itu utuh dan tidak diubah; hash tidak mengenkripsi dan tidak mengotentikasi pengguna."]},
+{d:1,a:1,en:["Which regulation specifically governs the protection of personal data of people in the European Union?",["HIPAA","GDPR","PCI DSS","SOX"],"The General Data Protection Regulation (GDPR) is the EU law on personal data protection and privacy. HIPAA covers US health data, PCI DSS covers payment cards, and SOX covers financial reporting."],
+id:["Regulasi mana yang secara khusus mengatur perlindungan data pribadi penduduk di Uni Eropa?",["HIPAA","GDPR","PCI DSS","SOX"],"General Data Protection Regulation (GDPR) adalah undang-undang Uni Eropa tentang perlindungan dan privasi data pribadi. HIPAA mengatur data kesehatan di AS, PCI DSS kartu pembayaran, dan SOX pelaporan keuangan."]},
+{d:1,a:2,en:["An organization wants to build and certify an Information Security Management System (ISMS). Which standard should it follow?",["ISO 9001","ITIL","ISO/IEC 27001","IEEE 802.11"],"ISO/IEC 27001 specifies requirements for establishing, implementing, and continually improving an ISMS, and organizations can be certified against it. ISO 9001 is quality management and 802.11 is Wi-Fi."],
+id:["Sebuah organisasi ingin membangun dan mensertifikasi Sistem Manajemen Keamanan Informasi (ISMS). Standar apa yang harus diikuti?",["ISO 9001","ITIL","ISO/IEC 27001","IEEE 802.11"],"ISO/IEC 27001 menetapkan persyaratan untuk membangun, menerapkan, dan meningkatkan ISMS secara berkelanjutan, dan organisasi dapat disertifikasi terhadapnya. ISO 9001 adalah manajemen mutu dan 802.11 adalah Wi-Fi."]},
+{d:1,a:0,en:["After a user successfully logs in with a password, the system decides which files that user is allowed to open. This decision is an example of:",["Authorization","Authentication","Accounting","Availability"],"Authentication proves who you are (the login). Authorization then determines what an already-identified user is permitted to do or access, such as which files they may open."],
+id:["Setelah pengguna berhasil login dengan kata sandi, sistem menentukan file mana saja yang boleh dibuka pengguna itu. Keputusan ini adalah contoh dari:",["Otorisasi (Authorization)","Otentikasi (Authentication)","Pencatatan (Accounting)","Ketersediaan (Availability)"],"Otentikasi membuktikan siapa Anda (proses login). Otorisasi kemudian menentukan apa yang boleh dilakukan atau diakses oleh pengguna yang sudah teridentifikasi, misalnya file mana yang boleh dibuka."]},
+/* ===== Domain 2: Ethical Hacking Fundamentals (5) ===== */
+{d:2,a:2,en:["A security enthusiast breaks into a company network without permission, finds a flaw, and reports it to the company without stealing anything or demanding money. This person is best classified as a:",["Black hat hacker","White hat hacker","Grey hat hacker","Suicide hacker"],"Grey hat hackers act without authorization (which is still illegal) but without malicious intent, often reporting what they find. White hats always have permission; black hats act with malicious intent."],
+id:["Seorang penggemar keamanan membobol jaringan perusahaan tanpa izin, menemukan celah, lalu melaporkannya ke perusahaan tanpa mencuri apa pun atau meminta uang. Orang ini paling tepat digolongkan sebagai:",["Black hat hacker","White hat hacker","Grey hat hacker","Suicide hacker"],"Grey hat hacker bertindak tanpa otorisasi (tetap ilegal) tetapi tanpa niat jahat, dan sering melaporkan temuannya. White hat selalu memiliki izin; black hat bertindak dengan niat jahat."]},
+{d:2,a:1,en:["Which of the following is a hard limitation that an ethical hacker must always respect during an engagement?",["They may only use open-source tools","Testing must stay within the agreed scope and written authorization","They must finish testing within one day","They may test any system owned by the client's partners"],"Ethical hacking is defined by permission. The rules of engagement and written authorization set the scope; testing systems outside that scope, even if related to the client, is unauthorized and potentially illegal."],
+id:["Manakah berikut ini yang merupakan batasan mutlak yang harus selalu dipatuhi ethical hacker selama penugasan?",["Hanya boleh memakai tools open-source","Pengujian harus tetap dalam lingkup yang disepakati dan otorisasi tertulis","Pengujian harus selesai dalam satu hari","Boleh menguji semua sistem milik mitra klien"],"Ethical hacking ditentukan oleh adanya izin. Rules of engagement dan otorisasi tertulis menetapkan lingkup; menguji sistem di luar lingkup itu, meski terkait dengan klien, adalah tindakan tanpa otorisasi dan berpotensi ilegal."]},
+{d:2,a:0,en:["What is the correct order of the phases of the hacking cycle?",["Reconnaissance, Scanning, Gaining Access, Maintaining Access, Clearing Tracks","Scanning, Reconnaissance, Clearing Tracks, Gaining Access, Maintaining Access","Gaining Access, Reconnaissance, Scanning, Maintaining Access, Clearing Tracks","Reconnaissance, Gaining Access, Scanning, Clearing Tracks, Maintaining Access"],"The CEH hacking cycle starts with gathering information (reconnaissance), then scanning for openings, exploiting them to gain access, keeping that access, and finally clearing tracks to hide evidence."],
+id:["Apa urutan fase siklus hacking (hacking cycle) yang benar?",["Reconnaissance, Scanning, Gaining Access, Maintaining Access, Clearing Tracks","Scanning, Reconnaissance, Clearing Tracks, Gaining Access, Maintaining Access","Gaining Access, Reconnaissance, Scanning, Maintaining Access, Clearing Tracks","Reconnaissance, Gaining Access, Scanning, Clearing Tracks, Maintaining Access"],"Siklus hacking CEH dimulai dari pengumpulan informasi (reconnaissance), lalu pemindaian celah (scanning), eksploitasi untuk mendapat akses (gaining access), mempertahankan akses (maintaining access), dan terakhir menghapus jejak (clearing tracks)."]},
+{d:2,a:3,en:["A red team wants a knowledge base that describes real-world adversary tactics, techniques, and procedures (TTPs) mapped from actual intrusions. Which framework should they use?",["OSI model","Diamond Model","Cyber Kill Chain only","MITRE ATT&CK"],"MITRE ATT&CK is a curated knowledge base of adversary TTPs observed in real attacks, organized by tactics and techniques. The Kill Chain describes attack stages but not detailed techniques."],
+id:["Sebuah red team membutuhkan basis pengetahuan yang mendeskripsikan taktik, teknik, dan prosedur (TTP) penyerang di dunia nyata berdasarkan intrusi yang benar-benar terjadi. Framework apa yang harus dipakai?",["Model OSI","Diamond Model","Hanya Cyber Kill Chain","MITRE ATT&CK"],"MITRE ATT&CK adalah basis pengetahuan TTP penyerang yang diamati dari serangan nyata, disusun berdasarkan taktik dan teknik. Kill Chain mendeskripsikan tahapan serangan, tetapi tidak merinci tekniknya."]},
+{d:2,a:1,en:["A group defaces a government website and leaks documents to protest a new law. What is the primary motivation of this hacker class?",["Financial profit","Ideology or political cause","Corporate espionage","Personal revenge against an employer"],"Attackers driven by political or social beliefs are hacktivists; protest defacements and protest leaks are their signature actions, not profit-driven crime or espionage."],
+id:["Sebuah kelompok merusak tampilan situs pemerintah dan membocorkan dokumen untuk memprotes undang-undang baru. Apa motivasi utama kelas hacker ini?",["Keuntungan finansial","Ideologi atau tujuan politik","Spionase korporat","Balas dendam pribadi kepada atasan"],"Penyerang yang digerakkan oleh keyakinan politik atau sosial disebut hacktivist; perusakan situs dan kebocoran dokumen sebagai bentuk protes adalah ciri khas mereka, bukan kejahatan bermotif keuntungan atau spionase."]},
+/* ===== Domain 3: Malware Threats and Countermeasures (7) ===== */
+{d:3,a:2,en:["What key behavior separates a worm from a classic computer virus?",["A worm encrypts files and demands ransom","A worm needs a user to click a link before it can run","A worm spreads by itself across networks without attaching to a host file","A worm only infects mobile phones"],"Worms are self-replicating and self-propagating: they exploit network services to spread machine-to-machine without a host file or user action. Viruses need a host file and usually user interaction."],
+id:["Perilaku kunci apa yang membedakan worm dari virus komputer klasik?",["Worm mengenkripsi file dan meminta tebusan","Worm membutuhkan pengguna mengklik tautan agar bisa berjalan","Worm menyebar sendiri melintasi jaringan tanpa menempel pada file induk","Worm hanya menginfeksi ponsel"],"Worm dapat mereplikasi dan menyebar sendiri: mengeksploitasi layanan jaringan untuk berpindah antar-mesin tanpa file induk atau tindakan pengguna. Virus membutuhkan file induk dan biasanya interaksi pengguna."]},
+{d:3,a:0,en:["A user installs a free game downloaded from an unofficial site. The game works normally, but it silently installs a remote-access backdoor. This malware delivery method is a:",["Trojan horse","Logic bomb","Rootkit","Worm"],"A Trojan horse hides malicious functionality inside software that looks legitimate and useful, relying on the user to install it willingly — exactly like the mythological wooden horse."],
+id:["Seorang pengguna memasang game gratis dari situs tidak resmi. Game berjalan normal, tetapi diam-diam memasang backdoor akses jarak jauh. Metode penyebaran malware ini adalah:",["Trojan horse","Logic bomb","Rootkit","Worm"],"Trojan horse menyembunyikan fungsi jahat di dalam perangkat lunak yang tampak sah dan berguna, mengandalkan pengguna untuk memasangnya secara sukarela — persis seperti kuda kayu dalam mitologi."]},
+{d:3,a:3,en:["An entire office finds its documents renamed with a strange extension and a note demanding Bitcoin payment for a decryption key. The organization is a victim of:",["Spyware","Adware","Keylogger","Ransomware"],"Ransomware encrypts the victim's files and extorts payment, typically in cryptocurrency, in exchange for the decryption key. Spyware and keyloggers steal information quietly instead."],
+id:["Seluruh kantor mendapati dokumennya berganti ekstensi aneh disertai catatan yang menuntut pembayaran Bitcoin untuk kunci dekripsi. Organisasi ini menjadi korban:",["Spyware","Adware","Keylogger","Ransomware"],"Ransomware mengenkripsi file korban dan memeras pembayaran, biasanya dalam mata uang kripto, sebagai imbalan kunci dekripsi. Spyware dan keylogger mencuri informasi secara diam-diam."]},
+{d:3,a:1,en:["Malware is suspected on a server, yet the antivirus finds nothing and the process list looks clean because the malware hides processes, files, and its own network connections at the kernel level. This capability is characteristic of a:",["Trojan","Rootkit","Ransomware","Dropper"],"Rootkits are designed to conceal malicious activity by subverting the operating system itself, often at kernel level, hiding processes, files, registry keys, and connections from users and tools."],
+id:["Malware dicurigai ada di server, namun antivirus tidak menemukan apa pun dan daftar proses tampak bersih karena malware menyembunyikan proses, file, dan koneksi jaringannya sendiri di level kernel. Kemampuan ini adalah ciri khas:",["Trojan","Rootkit","Ransomware","Dropper"],"Rootkit dirancang untuk menyembunyikan aktivitas jahat dengan membajak sistem operasi itu sendiri, sering di level kernel, menyembunyikan proses, file, kunci registry, dan koneksi dari pengguna dan tools."]},
+{d:3,a:2,en:["Why is fileless malware harder for traditional antivirus software to detect?",["It is stored on a USB drive instead of the hard disk","It uses very large files that scanners skip","It runs in memory and abuses legitimate built-in tools such as PowerShell instead of dropping a malicious file","It only attacks at night when scanners are off"],"Fileless malware avoids writing a scannable payload to disk. It lives in RAM and uses trusted system tools (living-off-the-land), so signature-based file scanning has little or nothing to inspect."],
+id:["Mengapa malware fileless lebih sulit dideteksi oleh antivirus tradisional?",["Malware ini disimpan di USB, bukan di hard disk","Malware ini memakai file sangat besar yang dilewati pemindai","Malware ini berjalan di memori dan menyalahgunakan tools bawaan sah seperti PowerShell, tanpa menjatuhkan file berbahaya","Malware ini hanya menyerang malam hari saat pemindai mati"],"Malware fileless menghindari penulisan payload yang bisa dipindai ke disk. Ia hidup di RAM dan memakai tools sistem tepercaya (living-off-the-land), sehingga pemindaian file berbasis signature hampir tidak punya apa-apa untuk diperiksa."]},
+{d:3,a:0,en:["A new malware variant changes its code structure every time it infects a new machine while keeping the same behavior, so no two copies share the same signature. This malware is:",["Polymorphic malware","A macro virus","A boot sector virus","A browser hijacker"],"Polymorphic malware rewrites or re-encrypts its own code with each infection to change its appearance while keeping its function, specifically to defeat signature-based detection."],
+id:["Varian malware baru mengubah struktur kodenya setiap kali menginfeksi mesin baru sambil mempertahankan perilaku yang sama, sehingga tidak ada dua salinan yang berbagi signature yang sama. Malware ini adalah:",["Malware polimorfik (polymorphic)","Virus makro","Virus boot sector","Pembajak browser (browser hijacker)"],"Malware polimorfik menulis ulang atau mengenkripsi ulang kodenya sendiri pada setiap infeksi untuk mengubah penampilannya sambil mempertahankan fungsinya, khusus untuk mengalahkan deteksi berbasis signature."]},
+{d:3,a:1,en:["Which combination is the most effective general countermeasure strategy against malware infections?",["Disable all user accounts and unplug the network permanently","Keep the OS and applications patched, run updated anti-malware, and apply least-privilege accounts","Rename the administrator account and hide the Wi-Fi name","Install as many free toolbars and cleaners as possible"],"Most malware exploits known, patchable vulnerabilities or excessive privileges. Timely patching, maintained anti-malware, and least privilege together remove the common entry points without destroying usability."],
+id:["Kombinasi mana yang merupakan strategi penanggulangan umum paling efektif terhadap infeksi malware?",["Menonaktifkan semua akun pengguna dan mencabut jaringan secara permanen","Menjaga OS dan aplikasi selalu ter-patch, menjalankan anti-malware yang mutakhir, dan menerapkan akun least-privilege","Mengganti nama akun administrator dan menyembunyikan nama Wi-Fi","Memasang sebanyak mungkin toolbar dan aplikasi pembersih gratis"],"Kebanyakan malware mengeksploitasi kerentanan yang sudah diketahui dan bisa di-patch, atau hak akses yang berlebihan. Patch tepat waktu, anti-malware yang terpelihara, dan least privilege bersama-sama menutup pintu masuk umum tanpa merusak kegunaan sistem."]},
+/* ===== Domain 4: Ethical Hacking Phases (8) ===== */
+{d:4,a:2,en:["During reconnaissance, an attacker collects a target's IP ranges, employee names, and email formats purely from search engines, the company website, and public WHOIS records, without sending any packets to the target. This is:",["Active reconnaissance","Vulnerability scanning","Passive reconnaissance / footprinting","Enumeration"],"Passive footprinting gathers information from publicly available sources without directly interacting with the target, so it generates no traffic the target can detect."],
+id:["Saat reconnaissance, penyerang mengumpulkan rentang IP, nama karyawan, dan format email target murni dari mesin pencari, situs perusahaan, dan catatan WHOIS publik, tanpa mengirim paket apa pun ke target. Ini adalah:",["Reconnaissance aktif","Pemindaian kerentanan","Reconnaissance pasif / footprinting","Enumeration"],"Footprinting pasif mengumpulkan informasi dari sumber yang tersedia publik tanpa berinteraksi langsung dengan target, sehingga tidak menghasilkan trafik yang dapat dideteksi target."]},
+{d:4,a:0,en:["An assessor runs an Nmap ping sweep (nmap -sn) across a subnet before any port scanning. What is the immediate goal?",["Discover which hosts are alive on the network","Exploit open services","Crack user passwords","Clear event logs"],"A ping sweep identifies live hosts that respond on the network. Only after knowing which addresses are in use does it make sense to scan their ports and services."],
+id:["Seorang asesor menjalankan ping sweep Nmap (nmap -sn) pada sebuah subnet sebelum pemindaian port apa pun. Apa tujuan langsungnya?",["Menemukan host mana saja yang hidup di jaringan","Mengeksploitasi layanan yang terbuka","Memecahkan kata sandi pengguna","Menghapus log peristiwa"],"Ping sweep mengidentifikasi host hidup yang merespons di jaringan. Hanya setelah mengetahui alamat mana yang dipakai, barulah masuk akal untuk memindai port dan layanannya."]},
+{d:4,a:3,en:["Which tool is primarily a vulnerability scanner that checks systems against a large database of known vulnerabilities and misconfigurations?",["Wireshark","Metasploit","John the Ripper","Nessus"],"Nessus is a vulnerability assessment scanner: it probes targets and reports known CVEs, missing patches, and weak configurations. Metasploit exploits, Wireshark analyzes traffic, John cracks passwords."],
+id:["Tool mana yang utamanya adalah vulnerability scanner yang memeriksa sistem terhadap database besar berisi kerentanan dan kesalahan konfigurasi yang diketahui?",["Wireshark","Metasploit","John the Ripper","Nessus"],"Nessus adalah pemindai penilaian kerentanan: ia memeriksa target dan melaporkan CVE yang diketahui, patch yang hilang, dan konfigurasi yang lemah. Metasploit untuk eksploitasi, Wireshark menganalisis trafik, John memecahkan kata sandi."]},
+{d:4,a:1,en:["After scanning, an attacker queries a Windows host and extracts valid usernames, group memberships, and shared folders. This deeper information-gathering step is called:",["Footprinting","Enumeration","Covering tracks","Pivoting"],"Enumeration is the active probing of a target to extract concrete details such as user accounts, groups, shares, and services — information that goes beyond simply finding open ports."],
+id:["Setelah pemindaian, penyerang meng-query sebuah host Windows dan mengekstrak nama pengguna yang valid, keanggotaan grup, dan folder bersama. Langkah pengumpulan informasi yang lebih dalam ini disebut:",["Footprinting","Enumeration","Covering tracks","Pivoting"],"Enumeration adalah probing aktif terhadap target untuk mengekstrak detail konkret seperti akun pengguna, grup, share, dan layanan — informasi yang melampaui sekadar menemukan port terbuka."]},
+{d:4,a:2,en:["An attacker connects to a mail server's SMTP port and reads the greeting line '220 mail.example.com Microsoft ESMTP MAIL Service, Version: 8.5'. This technique is:",["Password sniffing","DNS poisoning","Banner grabbing","Log tampering"],"Banner grabbing collects the identification banners services disclose on connection, revealing product names and exact versions that help an attacker select matching exploits."],
+id:["Penyerang terhubung ke port SMTP server email dan membaca baris sambutan '220 mail.example.com Microsoft ESMTP MAIL Service, Version: 8.5'. Teknik ini adalah:",["Password sniffing","DNS poisoning","Banner grabbing","Perusakan log"],"Banner grabbing mengumpulkan banner identifikasi yang diungkap layanan saat koneksi, menampilkan nama produk dan versi persis yang membantu penyerang memilih exploit yang cocok."]},
+{d:4,a:0,en:["Which action belongs to the maintaining-access phase of an attack?",["Installing a backdoor account so the attacker can return later","Running a WHOIS lookup on the target domain","Performing a ping sweep of the subnet","Reading the target's public privacy policy"],"Maintaining access is about persistence: backdoors, new accounts, or remote-access tools that let the attacker re-enter the system at will after the initial compromise."],
+id:["Tindakan mana yang termasuk fase maintaining access (mempertahankan akses) dalam sebuah serangan?",["Memasang akun backdoor agar penyerang bisa kembali lagi nanti","Menjalankan pencarian WHOIS pada domain target","Melakukan ping sweep pada subnet","Membaca kebijakan privasi publik milik target"],"Maintaining access adalah soal persistensi: backdoor, akun baru, atau tools akses jarak jauh yang memungkinkan penyerang masuk kembali ke sistem kapan pun setelah kompromi awal."]},
+{d:4,a:3,en:["Immediately after gaining access to a Linux server, an attacker deletes shell history and edits system log files to remove records of the intrusion. This is:",["Enumeration","Maintaining access","Vulnerability scanning","Covering tracks"],"Covering tracks is the final hacking phase: attackers erase or alter logs, histories, and other evidence so defenders and investigators cannot easily reconstruct the intrusion."],
+id:["Segera setelah mendapatkan akses ke server Linux, penyerang menghapus riwayat shell dan mengedit file log sistem untuk menghilangkan catatan intrusi. Ini adalah:",["Enumeration","Maintaining access","Vulnerability scanning","Covering tracks (menghapus jejak)"],"Covering tracks adalah fase terakhir hacking: penyerang menghapus atau mengubah log, riwayat, dan bukti lain agar tim pertahanan dan investigator tidak mudah merekonstruksi intrusi."]},
+{d:4,a:1,en:["A tester finds that a web server runs an outdated service with a known remote-code-execution flaw, then uses an exploit to obtain a shell on the server. Obtaining the shell belongs to which phase?",["Reconnaissance","Gaining access","Covering tracks","Footprinting"],"Exploiting a discovered vulnerability to obtain actual access — here, a shell — is the gaining-access phase, which follows reconnaissance and scanning."],
+id:["Seorang tester menemukan server web menjalankan layanan usang dengan celah remote-code-execution yang diketahui, lalu memakai exploit untuk mendapatkan shell di server. Mendapatkan shell termasuk fase apa?",["Reconnaissance","Gaining access","Covering tracks","Footprinting"],"Mengeksploitasi kerentanan yang ditemukan untuk memperoleh akses nyata — di sini berupa shell — adalah fase gaining access, yang mengikuti reconnaissance dan scanning."]},
+/* ===== Domain 5: Password Cracking (3) ===== */
+{d:5,a:2,en:["What is the key difference between a dictionary attack and a brute-force attack?",["A dictionary attack only works online, brute force only works offline","Brute force tries encrypted passwords, a dictionary attack cannot","A dictionary attack tries words from a prepared list, brute force systematically tries every possible combination","There is no difference; they are two names for the same technique"],"A dictionary attack tests likely candidates from a wordlist, which is fast but fails if the password is not in the list. Brute force eventually tries every combination, guaranteeing success given enough time and computing power."],
+id:["Apa perbedaan kunci antara dictionary attack dan brute-force attack?",["Dictionary attack hanya bekerja online, brute force hanya offline","Brute force mencoba kata sandi terenkripsi, dictionary attack tidak bisa","Dictionary attack mencoba kata dari daftar yang disiapkan, brute force mencoba setiap kemungkinan kombinasi secara sistematis","Tidak ada perbedaan; keduanya nama untuk teknik yang sama"],"Dictionary attack menguji kandidat yang mungkin dari sebuah wordlist — cepat, tetapi gagal jika kata sandi tidak ada di daftar. Brute force pada akhirnya mencoba semua kombinasi, menjamin keberhasilan bila waktu dan daya komputasi cukup."]},
+{d:5,a:1,en:["A tester obtains a file of stolen password hashes and wants to crack them offline at maximum speed using GPU acceleration. The most suitable tool is:",["Hydra","Hashcat","Wireshark","Nmap"],"Hashcat is an offline hash-cracking tool famous for GPU acceleration and support for hundreds of hash types. Hydra performs online login attacks against live services instead."],
+id:["Seorang tester memperoleh file berisi hash kata sandi curian dan ingin memecahkannya secara offline dengan kecepatan maksimum memakai akselerasi GPU. Tool yang paling sesuai adalah:",["Hydra","Hashcat","Wireshark","Nmap"],"Hashcat adalah tool cracking hash offline yang terkenal dengan akselerasi GPU dan dukungan ratusan jenis hash. Hydra melakukan serangan login online terhadap layanan yang hidup."]},
+{d:5,a:0,en:["Which measure most directly defeats online password-guessing attacks against a login page?",["Account lockout after a few failed attempts combined with multi-factor authentication","Making the login page background a darker color","Requiring users to change passwords every day","Hiding the login page URL without any other control"],"Lockout (or throttling) stops high-volume guessing, and MFA means a guessed password alone is not enough to log in. Obscuring the page and excessive rotation do not stop guessing."],
+id:["Langkah mana yang paling langsung mengalahkan serangan tebak kata sandi online terhadap halaman login?",["Penguncian akun setelah beberapa kali gagal, dikombinasikan dengan otentikasi multi-faktor (MFA)","Membuat latar halaman login berwarna lebih gelap","Mewajibkan pengguna mengganti kata sandi setiap hari","Menyembunyikan URL halaman login tanpa kontrol lain"],"Penguncian akun (atau pembatasan percobaan) menghentikan penebakan bervolume tinggi, dan MFA membuat kata sandi yang berhasil ditebak saja tidak cukup untuk login. Menyembunyikan halaman dan rotasi berlebihan tidak menghentikan penebakan."]},
+/* ===== Domain 6: Social Engineering (5) ===== */
+{d:6,a:3,en:["An employee receives an email that appears to come from the company's CEO, addresses her by name, references a real ongoing project, and urgently asks her to buy gift cards. This targeted attack is:",["Generic phishing","Vishing","Watering hole attack","Spear phishing"],"Spear phishing is tailored to a specific person or organization using personal details to appear credible. The CEO-fraud style targeting employees is also called business email compromise."],
+id:["Seorang karyawan menerima email yang tampak berasal dari CEO perusahaan, menyebut namanya, merujuk proyek nyata yang sedang berjalan, dan mendesak membeli kartu hadiah. Serangan tertarget ini adalah:",["Phishing biasa","Vishing","Watering hole attack","Spear phishing"],"Spear phishing disesuaikan untuk orang atau organisasi tertentu dengan memakai detail pribadi agar tampak kredibel. Gaya penipuan berkedok CEO yang menargetkan karyawan juga disebut business email compromise."]},
+{d:6,a:1,en:["An attacker phones the help desk claiming to be a traveling executive who forgot a password, inventing a detailed story about a missed flight and an urgent presentation. Inventing a believable scenario to manipulate someone is known as:",["Baiting","Pretexting","Quid pro quo","Tailgating"],"Pretexting means creating a fabricated scenario — a pretext — to engage the victim and extract information or access. The invented story is the core of the technique."],
+id:["Penyerang menelepon help desk mengaku sebagai eksekutif yang sedang bepergian dan lupa kata sandi, mengarang cerita detail tentang ketinggalan pesawat dan presentasi mendesak. Mengarang skenario meyakinkan untuk memanipulasi seseorang dikenal sebagai:",["Baiting","Pretexting","Quid pro quo","Tailgating"],"Pretexting berarti menciptakan skenario karangan — dalih — untuk melibatkan korban dan mengekstrak informasi atau akses. Cerita yang dikarang adalah inti dari teknik ini."]},
+{d:6,a:2,en:["USB drives labeled 'Salary Review 2026 — Confidential' are scattered in a company parking lot. An employee plugs one in and malware executes. Which social engineering technique was used?",["Pretexting","Vishing","Baiting","Shoulder surfing"],"Baiting lures victims with something desirable or curiosity-provoking — here, a tempting labeled USB drive — that carries the malicious payload."],
+id:["Flash disk USB berlabel 'Salary Review 2026 — Confidential' disebar di parkir perusahaan. Seorang karyawan mencolokkannya dan malware berjalan. Teknik social engineering apa yang dipakai?",["Pretexting","Vishing","Baiting","Shoulder surfing"],"Baiting memancing korban dengan sesuatu yang menggiurkan atau memicu rasa ingin tahu — di sini flash disk berlabel menarik — yang membawa payload berbahaya."]},
+{d:6,a:0,en:["A recently fired database administrator uses still-active credentials to copy the customer database before leaving. This is primarily an example of:",["Insider threat","External zero-day attack","Drive-by download","DNS spoofing"],"An insider threat comes from someone with legitimate access — current or former employees, contractors, or partners — who misuses that access, intentionally or accidentally."],
+id:["Seorang administrator database yang baru dipecat memakai kredensial yang masih aktif untuk menyalin database pelanggan sebelum pergi. Ini terutama merupakan contoh dari:",["Ancaman orang dalam (insider threat)","Serangan zero-day eksternal","Drive-by download","DNS spoofing"],"Insider threat berasal dari seseorang yang memiliki akses sah — karyawan aktif atau mantan karyawan, kontraktor, atau mitra — yang menyalahgunakan akses itu, secara sengaja maupun tidak."]},
+{d:6,a:3,en:["Which control most effectively stops social engineering attempts that ask employees to reset passwords or transfer funds?",["Installing more antivirus licenses","Using longer network cables","Banning all email attachments","Verification procedures such as callback confirmation plus regular security awareness training"],"Social engineering exploits people, not software. Trained staff who follow verification procedures — such as calling back on a known number before acting on unusual requests — break the attack even when the story sounds convincing."],
+id:["Kontrol mana yang paling efektif menghentikan upaya social engineering yang meminta karyawan mengatur ulang kata sandi atau mentransfer dana?",["Memasang lebih banyak lisensi antivirus","Menggunakan kabel jaringan yang lebih panjang","Melarang semua lampiran email","Prosedur verifikasi seperti konfirmasi telepon balik (callback), ditambah pelatihan kesadaran keamanan berkala"],"Social engineering mengeksploitasi manusia, bukan perangkat lunak. Staf terlatih yang mengikuti prosedur verifikasi — misalnya menelepon balik ke nomor yang dikenal sebelum menindaklanjuti permintaan tidak biasa — mematahkan serangan meski ceritanya terdengar meyakinkan."]},
+/* ===== Domain 7: Network Level Attacks (8) ===== */
+{d:7,a:1,en:["To capture traffic that is not addressed to her own machine, an attacker sets her network interface card into a special mode that accepts every frame on the segment. This mode is:",["Monitor mode","Promiscuous mode","Trunk mode","Half-duplex mode"],"In promiscuous mode a NIC passes all frames it receives up to the operating system instead of discarding frames not addressed to it — the prerequisite for passive sniffing on a shared segment."],
+id:["Untuk menangkap trafik yang tidak ditujukan ke mesinnya sendiri, penyerang mengatur kartu jaringan (NIC) ke mode khusus yang menerima setiap frame di segmen. Mode ini adalah:",["Monitor mode","Promiscuous mode","Trunk mode","Half-duplex mode"],"Dalam promiscuous mode, NIC meneruskan semua frame yang diterimanya ke sistem operasi, bukan membuang frame yang tidak ditujukan kepadanya — syarat untuk sniffing pasif di segmen bersama."]},
+{d:7,a:2,en:["An analyst opens a packet capture file and filters for HTTP POST requests to inspect credentials sent in clear text. Which tool is she most likely using?",["Nmap","Metasploit","Wireshark","Aircrack-ng"],"Wireshark is the standard packet analyzer for capturing and interactively inspecting network traffic with display filters. Aircrack-ng targets Wi-Fi keys; Nmap scans; Metasploit exploits."],
+id:["Seorang analis membuka file tangkapan paket dan memfilter permintaan HTTP POST untuk memeriksa kredensial yang terkirim sebagai teks biasa. Tool apa yang paling mungkin ia pakai?",["Nmap","Metasploit","Wireshark","Aircrack-ng"],"Wireshark adalah penganalisis paket standar untuk menangkap dan memeriksa trafik jaringan secara interaktif dengan filter tampilan. Aircrack-ng menargetkan kunci Wi-Fi; Nmap memindai; Metasploit mengeksploitasi."]},
+{d:7,a:0,en:["Which measure most directly prevents a sniffer on the local network from reading the content of captured traffic?",["Encrypting traffic with TLS, SSH, or a VPN","Renaming the network SSID","Using static IP addresses","Disabling DHCP"],"Encryption makes captured packets unreadable even when an attacker records them. Addressing and naming changes do nothing against an attacker who can already capture frames."],
+id:["Langkah mana yang paling langsung mencegah sniffer di jaringan lokal membaca isi trafik yang ditangkap?",["Mengenkripsi trafik dengan TLS, SSH, atau VPN","Mengganti nama SSID jaringan","Menggunakan alamat IP statis","Menonaktifkan DHCP"],"Enkripsi membuat paket yang ditangkap tidak terbaca meski penyerang merekamnya. Perubahan pengalamatan dan penamaan tidak berpengaruh terhadap penyerang yang sudah bisa menangkap frame."]},
+{d:7,a:3,en:["What is the essential difference between a DoS attack and a DDoS attack?",["DoS uses encryption, DDoS does not","DoS targets servers, DDoS only targets routers","DoS is legal, DDoS is illegal","DDoS traffic comes from many distributed sources, usually a botnet, instead of a single machine"],"A distributed denial-of-service attack floods the target from numerous compromised systems at once, which makes the traffic far harder to block than a single-source DoS."],
+id:["Apa perbedaan mendasar antara serangan DoS dan DDoS?",["DoS memakai enkripsi, DDoS tidak","DoS menargetkan server, DDoS hanya menargetkan router","DoS legal, DDoS ilegal","Trafik DDoS berasal dari banyak sumber terdistribusi, biasanya botnet, bukan dari satu mesin"],"Serangan distributed denial-of-service membanjiri target dari banyak sistem yang dikompromikan secara bersamaan, sehingga trafiknya jauh lebih sulit diblokir daripada DoS dari satu sumber."]},
+{d:7,a:1,en:["An attacker sends a flood of TCP SYN packets with no intention of completing the handshake, leaving the server's connection table full of half-open connections. This is a:",["DNS amplification attack","SYN flood attack","Smurf attack","Slowloris password attack"],"A SYN flood abuses the TCP three-way handshake: each unanswered SYN makes the server reserve resources for a connection that is never completed, exhausting the backlog queue."],
+id:["Penyerang mengirim banjir paket TCP SYN tanpa niat menyelesaikan handshake, sehingga tabel koneksi server penuh dengan koneksi setengah terbuka. Ini adalah:",["Serangan amplifikasi DNS","Serangan SYN flood","Serangan Smurf","Serangan kata sandi Slowloris"],"SYN flood menyalahgunakan three-way handshake TCP: setiap SYN yang tak dijawab membuat server mencadangkan sumber daya untuk koneksi yang tidak pernah selesai, menghabiskan antrean backlog."]},
+{d:7,a:2,en:["In a DNS amplification attack, how does a relatively small attacker generate a very large volume of traffic toward the victim?",["By encrypting the victim's DNS zone files","By logging into the victim's DNS server as admin","By sending small spoofed queries to open DNS resolvers, which then send much larger responses to the victim's address","By deleting the victim's DNS records"],"Amplification works by spoofing the victim's IP as the source of small queries; reflectors reply with responses many times larger, all aimed at the victim."],
+id:["Dalam serangan amplifikasi DNS, bagaimana penyerang yang relatif kecil menghasilkan volume trafik yang sangat besar ke arah korban?",["Dengan mengenkripsi file zona DNS korban","Dengan login sebagai admin ke server DNS korban","Dengan mengirim query kecil berpemilik palsu (spoofed) ke resolver DNS terbuka, yang kemudian mengirim respons jauh lebih besar ke alamat korban","Dengan menghapus catatan DNS korban"],"Amplifikasi bekerja dengan memalsukan IP korban sebagai sumber query kecil; reflector membalas dengan respons berkali-kali lebih besar, semuanya diarahkan ke korban."]},
+{d:7,a:0,en:["An attacker steals a valid session cookie from a logged-in user and replays it from his own browser to access the account without any password. This attack is:",["Session hijacking","SQL injection","Cross-site scripting","Port scanning"],"Session hijacking takes over an existing authenticated session by stealing or predicting its session identifier (such as a cookie), letting the attacker impersonate the user."],
+id:["Penyerang mencuri cookie sesi yang valid dari pengguna yang sedang login dan memutarnya kembali dari browser-nya sendiri untuk mengakses akun tanpa kata sandi apa pun. Serangan ini adalah:",["Session hijacking (pembajakan sesi)","SQL injection","Cross-site scripting","Port scanning"],"Session hijacking mengambil alih sesi terautentikasi yang sudah ada dengan mencuri atau memprediksi pengenal sesinya (seperti cookie), sehingga penyerang dapat menyamar sebagai pengguna."]},
+{d:7,a:3,en:["Which set of controls best protects against session hijacking?",["Longer usernames and hidden login pages","Disabling cookies entirely on all browsers","Using the same session ID before and after login","HTTPS everywhere, regenerating the session ID after login, and short idle timeouts"],"Encrypting the channel protects the token in transit, regenerating the ID after authentication defeats fixation and pre-login theft, and timeouts shrink the window in which a stolen token stays useful."],
+id:["Kumpulan kontrol mana yang paling baik melindungi dari session hijacking?",["Nama pengguna yang lebih panjang dan halaman login tersembunyi","Menonaktifkan cookie sepenuhnya di semua browser","Memakai session ID yang sama sebelum dan sesudah login","HTTPS di mana-mana, membuat ulang session ID setelah login, dan timeout idle yang singkat"],"Mengenkripsi kanal melindungi token saat transit, membuat ulang ID setelah otentikasi menggagalkan fiksasi dan pencurian sebelum login, dan timeout mempersempit jendela waktu token curian masih berguna."]},
+/* ===== Domain 8: Web Application Attacks (9) ===== */
+{d:8,a:1,en:["A login form builds its database query by directly joining the typed username into an SQL string. An attacker enters a username of ' OR '1'='1 and is logged in without a password. The vulnerability is:",["Cross-site scripting","SQL injection","Directory traversal","Buffer overflow"],"SQL injection occurs when untrusted input is concatenated into an SQL query, letting the attacker change the query's logic — here making the WHERE condition always true."],
+id:["Form login membangun query database dengan menggabungkan langsung nama pengguna yang diketik ke dalam string SQL. Penyerang memasukkan nama pengguna ' OR '1'='1 dan berhasil login tanpa kata sandi. Kerentanannya adalah:",["Cross-site scripting","SQL injection","Directory traversal","Buffer overflow"],"SQL injection terjadi ketika input tak tepercaya digabungkan ke query SQL, memungkinkan penyerang mengubah logika query — di sini membuat kondisi WHERE selalu benar."]},
+{d:8,a:2,en:["A web application shows no database output and no error messages, yet an attacker can still extract data one character at a time by observing whether the page behaves slightly differently for true and false conditions. This is:",["Union-based SQL injection","Error-based SQL injection","Blind SQL injection","Second-order XSS"],"Blind SQL injection gives the attacker no direct data channel, so information is inferred from application behavior differences between true and false injected conditions."],
+id:["Aplikasi web tidak menampilkan output database maupun pesan error, namun penyerang tetap bisa mengekstrak data satu karakter demi satu karakter dengan mengamati perbedaan kecil perilaku halaman untuk kondisi benar dan salah. Ini adalah:",["SQL injection berbasis Union","SQL injection berbasis Error","Blind SQL injection","XSS second-order"],"Blind SQL injection tidak memberi penyerang kanal data langsung, jadi informasi disimpulkan dari perbedaan perilaku aplikasi antara kondisi injeksi yang benar dan salah."]},
+{d:8,a:0,en:["What is the most reliable application-level defense against SQL injection?",["Parameterized queries (prepared statements) that separate code from data","Blocking the words SELECT and UNION at the firewall","Hiding the database server name","Renaming database tables to random strings"],"Prepared statements ensure user input is always treated as data, never as executable SQL, which removes the injection mechanism itself. Keyword blocking and obscurity are easily bypassed."],
+id:["Apa pertahanan level aplikasi yang paling andal terhadap SQL injection?",["Query terparameter (prepared statements) yang memisahkan kode dari data","Memblokir kata SELECT dan UNION di firewall","Menyembunyikan nama server database","Mengganti nama tabel database menjadi string acak"],"Prepared statements memastikan input pengguna selalu diperlakukan sebagai data, tidak pernah sebagai SQL yang dapat dieksekusi, sehingga mekanisme injeksinya sendiri hilang. Pemblokiran kata kunci dan penyamaran mudah dilewati."]},
+{d:8,a:3,en:["A malicious comment containing JavaScript is saved in a website's database and then executed in the browser of every visitor who views the page. This is:",["Reflected XSS","DOM-based password cracking","CSRF","Stored (persistent) XSS"],"Stored XSS persists the payload on the server — in a database, comment, or profile — so it fires for every subsequent viewer, making it more damaging than the reflected type."],
+id:["Komentar berbahaya berisi JavaScript disimpan di database situs web lalu dieksekusi di browser setiap pengunjung yang melihat halaman itu. Ini adalah:",["Reflected XSS","Peretasan kata sandi berbasis DOM","CSRF","Stored (persistent) XSS"],"Stored XSS menyimpan payload di server — di database, komentar, atau profil — sehingga aktif untuk setiap pengunjung berikutnya, membuatnya lebih berbahaya daripada tipe reflected."]},
+{d:8,a:1,en:["While a victim is logged into her banking site, she clicks a link on another site that silently submits a money-transfer form to the bank using her active session. This attack is:",["SQL injection","Cross-Site Request Forgery (CSRF)","Reflected XSS","Clickjacking only"],"CSRF tricks the victim's browser into sending an unwanted, authenticated request to a site where the victim is logged in, abusing the trust the site has in the browser's session."],
+id:["Saat korban sedang login ke situs banknya, ia mengklik tautan di situs lain yang secara diam-diam mengirimkan formulir transfer uang ke bank memakai sesinya yang aktif. Serangan ini adalah:",["SQL injection","Cross-Site Request Forgery (CSRF)","Reflected XSS","Hanya clickjacking"],"CSRF menipu browser korban agar mengirim permintaan terautentikasi yang tidak diinginkan ke situs tempat korban sedang login, menyalahgunakan kepercayaan situs terhadap sesi browser."]},
+{d:8,a:2,en:["An attacker requests http://example.com/download.php?file=../../../../etc/passwd and the server returns the system password file. Which vulnerability was exploited?",["Session fixation","LDAP injection","Directory (path) traversal","HTTP response splitting"],"Path traversal uses ../ sequences to walk out of the intended web directory and read arbitrary files on the server that the application was never meant to expose."],
+id:["Penyerang meminta http://example.com/download.php?file=../../../../etc/passwd dan server mengembalikan file kata sandi sistem. Kerentanan apa yang dieksploitasi?",["Session fixation","LDAP injection","Directory (path) traversal","HTTP response splitting"],"Path traversal memakai urutan ../ untuk keluar dari direktori web yang dimaksud dan membaca file arbitrer di server yang tidak pernah dimaksudkan untuk diekspos aplikasi."]},
+{d:8,a:0,en:["In a typical three-tier web application architecture, which tier is responsible for processing business rules and connecting the user interface to the database?",["Application (logic) tier","Presentation tier","Data tier","Network tier"],"The middle application tier holds the business logic: it receives requests from the presentation tier, applies rules and processing, and reads or writes data through the data tier."],
+id:["Dalam arsitektur aplikasi web tiga lapis (three-tier) yang umum, lapis mana yang bertanggung jawab memproses aturan bisnis dan menghubungkan antarmuka pengguna ke database?",["Lapis aplikasi (logika)","Lapis presentasi","Lapis data","Lapis jaringan"],"Lapis aplikasi di tengah memegang logika bisnis: menerima permintaan dari lapis presentasi, menerapkan aturan dan pemrosesan, serta membaca atau menulis data melalui lapis data."]},
+{d:8,a:3,en:["A company wants to harden its public web server. Which action is a proper web server hardening step?",["Leaving the default sample pages and admin consoles enabled","Running the web service with full root privileges","Publishing the server version banner for transparency","Disabling unnecessary services and modules, applying patches, and removing default content"],"Hardening reduces attack surface: remove defaults and unused features, patch promptly, and run services with least privilege. Leaving defaults and running as root do the opposite."],
+id:["Sebuah perusahaan ingin mengeraskan (hardening) server web publiknya. Tindakan mana yang merupakan langkah hardening server web yang benar?",["Membiarkan halaman contoh bawaan dan konsol admin tetap aktif","Menjalankan layanan web dengan hak akses root penuh","Mempublikasikan banner versi server demi transparansi","Menonaktifkan layanan dan modul yang tidak perlu, menerapkan patch, dan menghapus konten bawaan"],"Hardening mengurangi permukaan serangan: menghapus bawaan dan fitur yang tak terpakai, melakukan patch segera, dan menjalankan layanan dengan hak minimum. Membiarkan bawaan dan berjalan sebagai root justru sebaliknya."]},
+{d:8,a:1,en:["An attacker discovers that a web form passes a user-supplied filename directly into an operating system command that processes uploaded images, and appends '; cat /etc/passwd' to run an extra command. This is:",["Command injection","Broken access control","Security misconfiguration","XML external entity attack"],"OS command injection happens when application input is embedded in a shell command without sanitization, letting attackers chain their own commands onto the intended one."],
+id:["Penyerang menemukan form web meneruskan nama file dari pengguna langsung ke perintah sistem operasi yang memproses gambar unggahan, lalu menambahkan '; cat /etc/passwd' untuk menjalankan perintah tambahan. Ini adalah:",["Command injection (injeksi perintah)","Broken access control","Kesalahan konfigurasi keamanan","Serangan XML external entity"],"OS command injection terjadi ketika input aplikasi disematkan ke perintah shell tanpa sanitasi, memungkinkan penyerang merangkai perintahnya sendiri ke perintah yang dimaksud."]},
+/* ===== Domain 9: Wireless Attacks (5) ===== */
+{d:9,a:2,en:["Why is the legacy WEP protocol considered fundamentally broken for protecting a wireless network?",["It uses AES encryption that is too slow","It requires certificates on every client","Its short, reused initialization vectors (IVs) let attackers recover the key from captured traffic","It only works on the 5 GHz band"],"WEP's 24-bit IV repeats quickly and its RC4 key scheduling is weak, so statistical attacks on enough captured packets reveal the key — a design flaw, not just a configuration problem."],
+id:["Mengapa protokol lama WEP dianggap rusak secara mendasar untuk melindungi jaringan nirkabel?",["Protokol ini memakai enkripsi AES yang terlalu lambat","Protokol ini mewajibkan sertifikat di setiap klien","Initialization vector (IV) yang pendek dan dipakai ulang memungkinkan penyerang memulihkan kunci dari trafik yang ditangkap","Protokol ini hanya bekerja di pita 5 GHz"],"IV 24-bit pada WEP cepat berulang dan penjadwalan kunci RC4-nya lemah, sehingga serangan statistik terhadap cukup banyak paket yang ditangkap dapat mengungkap kunci — ini cacat desain, bukan sekadar masalah konfigurasi."]},
+{d:9,a:0,en:["Attackers set up a laptop access point using the same SSID as a coffee shop's real Wi-Fi. Customers connect to it and their traffic passes through the attackers' machine. This is an:",["Evil twin attack","Bluejacking attack","WPS PIN attack","Wardriving survey"],"An evil twin is a rogue access point impersonating a legitimate network's SSID to lure users into connecting, enabling interception and man-in-the-middle attacks."],
+id:["Penyerang memasang access point dari laptop dengan SSID yang sama seperti Wi-Fi asli sebuah kedai kopi. Pelanggan terhubung ke sana dan trafik mereka melewati mesin penyerang. Ini adalah:",["Serangan evil twin","Serangan bluejacking","Serangan WPS PIN","Survei wardriving"],"Evil twin adalah access point palsu yang menyamar dengan SSID jaringan sah untuk memancing pengguna agar terhubung, memungkinkan penyadapan dan serangan man-in-the-middle."]},
+{d:9,a:3,en:["An attacker repeatedly sends spoofed deauthentication frames to a client, forcing it to disconnect from its access point again and again. What kind of attack is this?",["Password cracking","Bluetooth pairing attack","MAC spoofing","Wireless denial-of-service (deauthentication) attack"],"Management frames such as deauthentication were historically unauthenticated, so forged frames can kick clients off the network — a denial of service at the wireless layer (also used to force handshake captures)."],
+id:["Penyerang berulang kali mengirim frame deauthentication palsu ke klien, memaksanya terputus dari access point lagi dan lagi. Serangan jenis apa ini?",["Password cracking","Serangan pairing Bluetooth","MAC spoofing","Serangan denial-of-service nirkabel (deauthentication)"],"Frame manajemen seperti deauthentication secara historis tidak terautentikasi, sehingga frame palsu dapat menendang klien dari jaringan — sebuah denial of service di lapis nirkabel (juga dipakai untuk memaksa penangkapan handshake)."]},
+{d:9,a:1,en:["A user receives an unsolicited contact card and a mocking message over Bluetooth from a stranger nearby, but no data is taken. This nuisance attack is called:",["Bluesnarfing","Bluejacking","Bluebugging","Bluesmacking"],"Bluejacking is sending unsolicited messages or contact cards to a discoverable Bluetooth device. It is mostly a prank; Bluesnarfing is the one that steals data."],
+id:["Seorang pengguna menerima kartu kontak tak diminta dan pesan ejekan melalui Bluetooth dari orang asing di dekatnya, tetapi tidak ada data yang diambil. Serangan mengganggu ini disebut:",["Bluesnarfing","Bluejacking","Bluebugging","Bluesmacking"],"Bluejacking adalah pengiriman pesan atau kartu kontak tak diminta ke perangkat Bluetooth yang dapat ditemukan. Umumnya hanya keisengan; yang mencuri data adalah Bluesnarfing."]},
+{d:9,a:2,en:["A small business asks for the single most effective change to protect its Wi-Fi from common attacks. The best recommendation is:",["Hide the SSID and rely on MAC address filtering only","Keep WEP but choose a longer network name","Use WPA3 (or WPA2-AES) with a strong passphrase and disable WPS","Change the default SSID every hour"],"Strong modern encryption with a robust passphrase defeats casual cracking, and disabling WPS removes the easily brute-forced PIN feature. SSID hiding and MAC filtering are trivially bypassed."],
+id:["Sebuah usaha kecil meminta satu perubahan paling efektif untuk melindungi Wi-Fi-nya dari serangan umum. Rekomendasi terbaik adalah:",["Sembunyikan SSID dan andalkan hanya filter alamat MAC","Tetap pakai WEP tetapi pilih nama jaringan yang lebih panjang","Gunakan WPA3 (atau WPA2-AES) dengan passphrase kuat dan nonaktifkan WPS","Ganti SSID bawaan setiap jam"],"Enkripsi modern yang kuat dengan passphrase kokoh mengalahkan peretasan kasual, dan menonaktifkan WPS menghapus fitur PIN yang mudah di-brute-force. Menyembunyikan SSID dan filter MAC mudah dilewati."]},
+/* ===== Domain 10: Mobile, IoT, and OT (9) ===== */
+{d:10,a:1,en:["In mobile attack anatomy, which component is the phone-side entry point that most often delivers malware to a device?",["The cellular base station hardware","A malicious or repackaged application installed by the user","The phone's battery firmware","The SIM card's printed serial number"],"Most mobile malware arrives as an application — trojanized, repackaged, or from unofficial stores — that the user is tricked into installing, after which it abuses granted permissions."],
+id:["Dalam anatomi serangan mobile, komponen di sisi ponsel mana yang paling sering menjadi pintu masuk malware ke perangkat?",["Perangkat keras stasiun basis seluler","Aplikasi berbahaya atau hasil kemas ulang yang dipasang pengguna","Firmware baterai ponsel","Nomor seri tercetak pada kartu SIM"],"Kebanyakan malware mobile datang sebagai aplikasi — yang ditrojani, dikemas ulang, atau dari toko tidak resmi — yang pengguna tertipu untuk memasangnya, lalu menyalahgunakan izin yang diberikan."]},
+{d:10,a:3,en:["An Android user enables 'install from unknown sources' to sideload a free premium app APK from a forum. What is the main security risk introduced?",["The phone will lose its warranty registration automatically","The battery will drain twice as fast","The screen brightness will be locked","The app bypasses the official store's vetting, so a trojanized APK can be installed without any review"],"Official stores screen submitted apps; sideloading from arbitrary sources removes that check, which is exactly how repackaged, malware-carrying APKs reach devices."],
+id:["Pengguna Android mengaktifkan 'install from unknown sources' untuk memasang APK aplikasi premium gratis dari sebuah forum. Apa risiko keamanan utama yang muncul?",["Ponsel otomatis kehilangan pendaftaran garansi","Baterai akan terkuras dua kali lebih cepat","Kecerahan layar akan terkunci","Aplikasi melewati pemeriksaan toko resmi, sehingga APK yang ditrojani dapat dipasang tanpa peninjauan apa pun"],"Toko resmi menyaring aplikasi yang diajukan; sideloading dari sumber sembarangan menghapus pemeriksaan itu, dan begitulah APK kemas ulang pembawa malware mencapai perangkat."]},
+{d:10,a:0,en:["An employee loses a company phone containing customer data. Which Mobile Device Management (MDM) capability should IT use first?",["Remote wipe of the device","Automatic purchase of a replacement phone","Blocking the employee's personal email","Increasing the device's screen timeout"],"MDM platforms can remotely lock and wipe lost or stolen devices to protect the data on them — the immediate priority before anything else."],
+id:["Seorang karyawan kehilangan ponsel perusahaan yang berisi data pelanggan. Kemampuan Mobile Device Management (MDM) apa yang harus dipakai TI terlebih dahulu?",["Penghapusan data jarak jauh (remote wipe) pada perangkat","Pembelian otomatis ponsel pengganti","Memblokir email pribadi karyawan","Menambah timeout layar perangkat"],"Platform MDM dapat mengunci dan menghapus perangkat yang hilang atau dicuri dari jarak jauh untuk melindungi data di dalamnya — prioritas paling mendesak sebelum hal lain."]},
+{d:10,a:2,en:["What is the main security challenge that BYOD (Bring Your Own Device) introduces for an organization?",["Employees' devices are always newer than company devices","Personal devices cannot connect to Wi-Fi","Personal devices mix private and corporate data outside full IT control, widening the attack surface","BYOD makes printers stop working"],"With BYOD the organization does not fully own or control the endpoint, yet corporate data and credentials live on it, so policy, containerization, and MDM must compensate."],
+id:["Apa tantangan keamanan utama yang ditimbulkan BYOD (Bring Your Own Device) bagi organisasi?",["Perangkat karyawan selalu lebih baru daripada perangkat perusahaan","Perangkat pribadi tidak bisa terhubung ke Wi-Fi","Perangkat pribadi mencampur data pribadi dan perusahaan di luar kendali penuh TI, memperluas permukaan serangan","BYOD membuat printer berhenti bekerja"],"Dengan BYOD, organisasi tidak sepenuhnya memiliki atau mengendalikan endpoint, namun data dan kredensial perusahaan ada di dalamnya, sehingga kebijakan, containerization, dan MDM harus mengimbanginya."]},
+{d:10,a:1,en:["The Mirai botnet enslaved hundreds of thousands of cameras and DVRs to launch massive DDoS attacks. What weakness did it primarily exploit?",["Zero-day flaws in satellite links","Factory-default usernames and passwords that owners never changed","Weak Bluetooth pairing on cameras","Unpatched web browsers on PCs"],"Mirai simply tried lists of well-known default credentials over Telnet. Devices shipped with defaults like admin/12345 and were rarely reconfigured, giving the botnet its army."],
+id:["Botnet Mirai memperbudak ratusan ribu kamera dan DVR untuk meluncurkan serangan DDoS besar-besaran. Kelemahan apa yang terutama dieksploitasinya?",["Celah zero-day pada tautan satelit","Nama pengguna dan kata sandi bawaan pabrik yang tidak pernah diganti pemiliknya","Pairing Bluetooth yang lemah pada kamera","Browser web yang belum di-patch pada PC"],"Mirai hanya mencoba daftar kredensial bawaan yang sudah dikenal luas melalui Telnet. Perangkat dikirim dengan bawaan seperti admin/12345 dan jarang dikonfigurasi ulang, memberi botnet pasukannya."]},
+{d:10,a:3,en:["Which is the most effective baseline countermeasure set for consumer IoT devices on a home or office network?",["Leave default settings but hide the devices behind furniture","Rename every device to the same name","Disable all firmware updates permanently","Change default credentials, keep firmware updated, and place IoT devices on a separate network segment"],"Changing defaults defeats credential-list attacks, updates fix known flaws, and segmentation limits the damage if a weak device is compromised — together they address how IoT devices are actually attacked."],
+id:["Kumpulan penanggulangan dasar mana yang paling efektif untuk perangkat IoT konsumen di jaringan rumah atau kantor?",["Biarkan pengaturan bawaan tetapi sembunyikan perangkat di balik perabot","Ganti semua nama perangkat menjadi sama","Nonaktifkan semua pembaruan firmware secara permanen","Ganti kredensial bawaan, jaga firmware tetap mutakhir, dan tempatkan perangkat IoT pada segmen jaringan terpisah"],"Mengganti bawaan mengalahkan serangan daftar kredensial, pembaruan menambal celah yang diketahui, dan segmentasi membatasi kerusakan bila perangkat lemah dikompromikan — bersama-sama ketiganya menjawab cara perangkat IoT benar-benar diserang."]},
+{d:10,a:0,en:["In an industrial plant, which system directly monitors and controls physical processes such as pumps, valves, and production lines?",["SCADA system","Email gateway","CRM platform","Video streaming service"],"SCADA (Supervisory Control and Data Acquisition) systems supervise industrial processes, collecting sensor data and issuing control commands to field devices such as PLCs and RTUs."],
+id:["Di sebuah pabrik industri, sistem mana yang secara langsung memantau dan mengendalikan proses fisik seperti pompa, katup, dan lini produksi?",["Sistem SCADA","Email gateway","Platform CRM","Layanan streaming video"],"Sistem SCADA (Supervisory Control and Data Acquisition) mengawasi proses industri, mengumpulkan data sensor dan mengeluarkan perintah kendali ke perangkat lapangan seperti PLC dan RTU."]},
+{d:10,a:2,en:["The Stuxnet worm is famous in OT security because it:",["Stole credit card numbers from retail stores","Encrypted hospital records for ransom","Physically damaged industrial centrifuges by secretly altering PLC control logic","Defaced news websites during a protest"],"Stuxnet targeted Siemens PLCs driving uranium enrichment centrifuges, subtly changing their speeds until the equipment destroyed itself while reporting normal readings to operators."],
+id:["Worm Stuxnet terkenal dalam keamanan OT karena ia:",["Mencuri nomor kartu kredit dari toko ritel","Mengenkripsi catatan rumah sakit untuk tebusan","Merusak fisik mesin sentrifugal industri dengan diam-diam mengubah logika kendali PLC","Merusak tampilan situs berita saat protes"],"Stuxnet menargetkan PLC Siemens yang menggerakkan sentrifugal pengayaan uranium, mengubah kecepatannya secara halus hingga peralatan itu menghancurkan dirinya sendiri sambil melaporkan bacaan normal kepada operator."]},
+{d:10,a:1,en:["How do security priorities in OT environments typically differ from IT environments?",["OT ignores availability completely","OT prioritizes safety and availability of the physical process, while IT traditionally prioritizes confidentiality of data","IT systems never need patching","OT networks are always connected directly to the internet"],"In OT, an outage or unsafe state can injure people or destroy equipment, so availability and safety come first (the AIC ordering), whereas IT classically puts confidentiality first (CIA)."],
+id:["Bagaimana prioritas keamanan di lingkungan OT umumnya berbeda dari lingkungan IT?",["OT sama sekali mengabaikan ketersediaan","OT memprioritaskan keselamatan dan ketersediaan proses fisik, sedangkan IT secara tradisional memprioritaskan kerahasiaan data","Sistem IT tidak pernah butuh patching","Jaringan OT selalu terhubung langsung ke internet"],"Di OT, gangguan atau keadaan tidak aman dapat melukai orang atau merusak peralatan, jadi ketersediaan dan keselamatan adalah yang utama (urutan AIC), sedangkan IT secara klasik menempatkan kerahasiaan di depan (CIA)."]},
+/* ===== Domain 11: Cloud Computing Threats (6) ===== */
+{d:11,a:2,en:["A company uses a web-based email and office suite where the provider manages the servers, storage, application, and updates; staff only log in and use it. This service model is:",["Infrastructure as a Service (IaaS)","Platform as a Service (PaaS)","Software as a Service (SaaS)","Network as a Service (NaaS)"],"In SaaS the provider runs the entire stack and customers simply consume the finished application over the internet, like webmail or online office suites."],
+id:["Sebuah perusahaan memakai email dan paket perkantoran berbasis web di mana penyedia mengelola server, penyimpanan, aplikasi, dan pembaruan; staf hanya login dan memakainya. Model layanan ini adalah:",["Infrastructure as a Service (IaaS)","Platform as a Service (PaaS)","Software as a Service (SaaS)","Network as a Service (NaaS)"],"Pada SaaS, penyedia menjalankan seluruh tumpukan dan pelanggan cukup memakai aplikasi jadi melalui internet, seperti webmail atau paket perkantoran online."]},
+{d:11,a:0,en:["Under the cloud shared responsibility model, which duty almost always remains the customer's, even in SaaS?",["Protecting their own data, user accounts, and access configuration","Maintaining the provider's physical data center","Patching the provider's hypervisor","Replacing failed disks in the provider's racks"],"Providers secure the cloud infrastructure, but customers are always responsible for their data, identities, and how they configure access to the services they use."],
+id:["Dalam model tanggung jawab bersama (shared responsibility) cloud, tugas apa yang hampir selalu tetap menjadi tanggung jawab pelanggan, bahkan pada SaaS?",["Melindungi data, akun pengguna, dan konfigurasi akses mereka sendiri","Merawat pusat data fisik milik penyedia","Menambal hypervisor milik penyedia","Mengganti disk rusak di rak milik penyedia"],"Penyedia mengamankan infrastruktur cloud, tetapi pelanggan selalu bertanggung jawab atas data, identitas, dan cara mereka mengonfigurasi akses ke layanan yang mereka pakai."]},
+{d:11,a:3,en:["What is the key architectural difference between a container and a virtual machine?",["Containers each contain a full guest operating system kernel","Virtual machines share the host kernel directly","Containers cannot run applications","Containers share the host operating system's kernel and package only the application and its dependencies, making them lighter than VMs"],"A VM virtualizes hardware and boots a complete guest OS. Containers virtualize at the OS level, sharing the host kernel, so they start faster and use far fewer resources."],
+id:["Apa perbedaan arsitektur kunci antara container dan mesin virtual?",["Setiap container berisi kernel sistem operasi tamu yang lengkap","Mesin virtual berbagi kernel host secara langsung","Container tidak dapat menjalankan aplikasi","Container berbagi kernel sistem operasi host dan hanya mengemas aplikasi beserta dependensinya, sehingga lebih ringan daripada VM"],"VM memvirtualisasi perangkat keras dan mem-boot OS tamu yang lengkap. Container memvirtualisasi di level OS, berbagi kernel host, sehingga start lebih cepat dan memakai jauh lebih sedikit sumber daya."]},
+{d:11,a:1,en:["A development team packages applications in Docker containers and needs a system to automatically deploy, scale, and restart them across a cluster. The tool for this is:",["Wireshark","Kubernetes","Nessus","Hashcat"],"Kubernetes is the standard container orchestration platform: it schedules containers across nodes, scales them, and replaces failed instances automatically. Docker builds and runs the containers themselves."],
+id:["Tim pengembang mengemas aplikasi dalam container Docker dan membutuhkan sistem untuk menyebarkan, menskalakan, dan memulai ulang container secara otomatis di sebuah klaster. Tool untuk ini adalah:",["Wireshark","Kubernetes","Nessus","Hashcat"],"Kubernetes adalah platform orkestrasi container standar: menjadwalkan container di berbagai node, menskalakannya, dan mengganti instans yang gagal secara otomatis. Docker membangun dan menjalankan container itu sendiri."]},
+{d:11,a:2,en:["Thousands of private customer files are found openly downloadable from a company's cloud storage bucket because an administrator set the bucket's access policy to public while troubleshooting. This incident is an example of:",["A hypervisor zero-day exploit","Cryptojacking","Cloud misconfiguration exposing stored data","Container escape"],"Misconfiguration — especially overly permissive storage and access settings — is one of the most common causes of cloud data breaches. No exploit was needed; the door was simply left open."],
+id:["Ribuan file pribadi pelanggan ditemukan dapat diunduh secara terbuka dari bucket penyimpanan cloud perusahaan karena administrator mengatur kebijakan akses bucket menjadi publik saat troubleshooting. Insiden ini adalah contoh dari:",["Eksploitasi zero-day hypervisor","Cryptojacking","Kesalahan konfigurasi cloud yang mengekspos data tersimpan","Container escape"],"Kesalahan konfigurasi — terutama pengaturan penyimpanan dan akses yang terlalu longgar — adalah salah satu penyebab paling umum kebocoran data cloud. Tidak perlu exploit; pintunya memang dibiarkan terbuka."]},
+{d:11,a:0,en:["Which control is the most important first step for securing cloud accounts against takeover?",["Enforcing MFA and least-privilege IAM policies for all cloud identities","Giving every engineer full administrator access for convenience","Sharing one root account password among the whole team","Disabling all cloud audit logging"],"Most cloud account takeovers abuse weak or over-privileged credentials. MFA plus least-privilege IAM sharply reduces both the chance and the blast radius of a compromise."],
+id:["Kontrol apa yang merupakan langkah pertama terpenting untuk mengamankan akun cloud dari pengambilalihan?",["Mewajibkan MFA dan kebijakan IAM least-privilege untuk semua identitas cloud","Memberi setiap engineer akses administrator penuh demi kenyamanan","Berbagi satu kata sandi akun root untuk seluruh tim","Menonaktifkan semua pencatatan audit cloud"],"Kebanyakan pengambilalihan akun cloud menyalahgunakan kredensial yang lemah atau berhak berlebih. MFA ditambah IAM least-privilege secara tajam mengurangi peluang dan luas dampak kompromi."]},
+/* ===== Domain 12: Penetration Testing Fundamentals (3) ===== */
+{d:12,a:1,en:["How does a penetration test differ from a vulnerability assessment?",["A vulnerability assessment exploits systems, a penetration test only lists flaws","A penetration test actively exploits vulnerabilities to demonstrate real impact, while a vulnerability assessment mainly identifies and lists weaknesses","A penetration test requires no authorization","A vulnerability assessment is performed only by attackers"],"A VA scans and catalogs weaknesses. A penetration test goes further: with authorization, the tester actually exploits weaknesses to prove what an attacker could achieve."],
+id:["Apa perbedaan penetration test dari vulnerability assessment?",["Vulnerability assessment mengeksploitasi sistem, penetration test hanya mendaftar celah","Penetration test secara aktif mengeksploitasi kerentanan untuk menunjukkan dampak nyata, sedangkan vulnerability assessment terutama mengidentifikasi dan mendaftar kelemahan","Penetration test tidak memerlukan otorisasi","Vulnerability assessment hanya dilakukan oleh penyerang"],"VA memindai dan mengkatalogkan kelemahan. Penetration test melangkah lebih jauh: dengan otorisasi, tester benar-benar mengeksploitasi kelemahan untuk membuktikan apa yang bisa dicapai penyerang."]},
+{d:12,a:2,en:["A tester is given no internal information about the target network — no diagrams, no credentials, no IP ranges beyond the company name — to simulate an external attacker. This is a:",["White-box test","Grey-box test","Black-box test","Red-team social visit"],"In a black-box test the tester starts with essentially no knowledge of the target, mirroring a real external attacker. White-box provides full information; grey-box provides partial information."],
+id:["Seorang tester tidak diberi informasi internal apa pun tentang jaringan target — tanpa diagram, tanpa kredensial, tanpa rentang IP selain nama perusahaan — untuk mensimulasikan penyerang eksternal. Ini adalah:",["White-box test","Grey-box test","Black-box test","Kunjungan sosial red team"],"Pada black-box test, tester mulai dengan nyaris tanpa pengetahuan tentang target, meniru penyerang eksternal sungguhan. White-box memberi informasi penuh; grey-box memberi informasi sebagian."]},
+{d:12,a:0,en:["Before any penetration test begins, which step is absolutely required by professional guidelines?",["Obtain written authorization and agree on the rules of engagement and scope with the system owner","Start with the loudest possible scan so the test is noticed","Delete all logs from previous tests","Publish the client's IP ranges on a forum for help"],"Written authorization and agreed rules of engagement protect both the tester and the client legally and define what may be tested, when, and how — testing without them can be a crime."],
+id:["Sebelum penetration test apa pun dimulai, langkah apa yang mutlak diwajibkan oleh pedoman profesional?",["Memperoleh otorisasi tertulis dan menyepakati rules of engagement serta lingkup dengan pemilik sistem","Memulai dengan pemindaian sekeras mungkin agar pengujian ketahuan","Menghapus semua log dari pengujian sebelumnya","Mempublikasikan rentang IP klien di forum untuk meminta bantuan"],"Otorisasi tertulis dan rules of engagement yang disepakati melindungi tester dan klien secara hukum serta menentukan apa yang boleh diuji, kapan, dan bagaimana — pengujian tanpa itu dapat menjadi tindak pidana."]}
+];
+
+/* ================= APP LOGIC ================= */
+var TOTAL=QUESTIONS.length; /* 75 */
+var EXAM_SECONDS=120*60;
+var PASS_MARK=53;
+var state={name:"",lang:"both",idx:0,answers:[],marked:[],left:EXAM_SECONDS,timer:null,startedAt:0,finished:false};
+var i;
+for(i=0;i<TOTAL;i++){state.answers.push(-1);state.marked.push(false);}
+
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function show(id){var ids=["scr-login","scr-home","scr-exam","scr-review","scr-result"];for(var k=0;k<ids.length;k++){$(ids[k]).classList.toggle("hidden",ids[k]!==id);}window.scrollTo(0,0);}
+function fmt(sec){sec=Math.max(0,sec);var m=Math.floor(sec/60),s=sec%60;return (m<10?"0":"")+m+":"+(s<10?"0":"")+s;}
+function fmtUsed(sec){var m=Math.floor(sec/60),s=sec%60;return m+":"+(s<10?"0":"")+s;}
+function domOf(q){return DOMAINS[q.d-1];}
+function qText(q,lang){return lang==="id"?q.id[0]:q.en[0];}
+function qOpts(q,lang){return lang==="id"?q.id[1]:q.en[1];}
+function qExpl(q,lang){return lang==="id"?q.id[2]:q.en[2];}
+
+function setLang(lang){
+  state.lang=lang;
+  var groups=["lang-home","lang-exam"];
+  for(var g=0;g<groups.length;g++){
+    var btns=$(groups[g]).getElementsByTagName("button");
+    for(var b=0;b<btns.length;b++){btns[b].classList.toggle("on",btns[b].getAttribute("data-lang")===lang);}
+  }
+  if(!$("scr-exam").classList.contains("hidden")){renderQuestion();}
+  if(!$("scr-result").classList.contains("hidden")){renderAnswerReview();}
+}
+function bindLang(id){
+  var btns=$(id).getElementsByTagName("button");
+  for(var b=0;b<btns.length;b++){(function(btn){btn.addEventListener("click",function(){setLang(btn.getAttribute("data-lang"));});})(btns[b]);}
+}
+bindLang("lang-home");bindLang("lang-exam");
+
+/* blueprint table */
+(function(){
+  var html="";
+  for(var k=0;k<DOMAINS.length;k++){var d=DOMAINS[k];html+="<tr><td><b>"+d.n+". "+esc(d.en)+"</b><br><span class='small'>"+esc(d.id)+"</span></td><td class='n'>"+d.count+"</td></tr>";}
+  html+="<tr><td><b>Total</b></td><td class='n'><b>"+TOTAL+"</b></td></tr>";
+  $("bp-body").innerHTML=html;
+})();
+
+/* login */
+$("login-form").addEventListener("submit",function(ev){
+  ev.preventDefault();
+  var name=$("inp-name").value.trim();
+  if(name.length<2){$("login-err").textContent="Silakan isi nama lengkap terlebih dahulu. / Please enter your full name.";return;}
+  $("login-err").textContent="";
+  state.name=name;
+  $("home-name").textContent=name;
+  show("scr-home");
+});
+$("btn-change-name").addEventListener("click",function(){show("scr-login");});
+
+/* exam flow */
+$("btn-start").addEventListener("click",startExam);
+function startExam(){
+  for(var k=0;k<TOTAL;k++){state.answers[k]=-1;state.marked[k]=false;}
+  state.idx=0;state.left=EXAM_SECONDS;state.finished=false;state.startedAt=Date.now();
+  $("exam-user").textContent=state.name;
+  show("scr-exam");
+  renderQuestion();
+  stopTimer();
+  state.timer=setInterval(tick,1000);
+  updateTimer();
+}
+function stopTimer(){if(state.timer){clearInterval(state.timer);state.timer=null;}}
+function tick(){
+  state.left--;
+  if(state.left<=0){state.left=0;updateTimer();finishExam(true);return;}
+  updateTimer();
+}
+function updateTimer(){
+  var t=$("exam-timer");t.textContent=fmt(state.left);
+  t.classList.toggle("low",state.left<=600);
+}
+function counts(){
+  var a=0,m=0,k;
+  for(k=0;k<TOTAL;k++){if(state.answers[k]>=0)a++;if(state.marked[k])m++;}
+  return {a:a,m:m};
+}
+function renderQuestion(){
+  var q=QUESTIONS[state.idx],d=domOf(q),lang=state.lang;
+  $("q-count").textContent="Question "+(state.idx+1)+" of "+TOTAL+" / Soal "+(state.idx+1)+" dari "+TOTAL;
+  $("q-cat").textContent="Domain "+d.n+": "+(lang==="id"?d.id:d.en);
+  $("q-flagged").classList.toggle("hidden",!state.marked[state.idx]);
+  $("btn-flag").textContent=state.marked[state.idx]?"Hapus Tanda / Unmark":"Tandai / Mark for Review";
+  if(lang==="en"){$("q-text").textContent=q.en[0];$("q-text-id").textContent="";}
+  else if(lang==="id"){$("q-text").textContent=q.id[0];$("q-text-id").textContent="";}
+  else{$("q-text").textContent=q.en[0];$("q-text-id").textContent=q.id[0];}
+  var letters=["A","B","C","D"],html="";
+  var enOpts=q.en[1],idOpts=q.id[1];
+  for(var o=0;o<4;o++){
+    var main=lang==="id"?idOpts[o]:enOpts[o];
+    var sub=(lang==="both")?("<span class='oid'>"+esc(idOpts[o])+"</span>"):"";
+    var sel=state.answers[state.idx]===o?" sel":"";
+    html+="<button type='button' class='opt"+sel+"' data-opt='"+o+"'><span class='letter'>"+letters[o]+"</span><span>"+esc(main)+sub+"</span></button>";
+  }
+  $("q-opts").innerHTML=html;
+  var opts=$("q-opts").getElementsByTagName("button");
+  for(var b=0;b<opts.length;b++){(function(btn){btn.addEventListener("click",function(){pickAnswer(parseInt(btn.getAttribute("data-opt"),10));});})(opts[b]);}
+  $("btn-prev").disabled=state.idx===0;
+  $("btn-next").disabled=state.idx===TOTAL-1;
+  var c=counts();
+  $("exam-answered").textContent=c.a;$("exam-marked").textContent=c.m;
+  $("exam-progress").style.width=(c.a/TOTAL*100)+"%";
+  renderNav();
+}
+function renderNav(){
+  var html="";
+  for(var k=0;k<TOTAL;k++){
+    var cls="";
+    if(state.answers[k]>=0)cls+=" answered";
+    if(k===state.idx)cls+=" current";
+    html+="<button type='button' class='"+cls+"' data-q='"+k+"'>"+(k+1)+(state.marked[k]?"<span class='dot'></span>":"")+"</button>";
+  }
+  $("nav-grid").innerHTML=html;
+  var btns=$("nav-grid").getElementsByTagName("button");
+  for(var b=0;b<btns.length;b++){(function(btn){btn.addEventListener("click",function(){state.idx=parseInt(btn.getAttribute("data-q"),10);renderQuestion();});})(btns[b]);}
+}
+function pickAnswer(o){state.answers[state.idx]=o;renderQuestion();}
+$("btn-prev").addEventListener("click",function(){if(state.idx>0){state.idx--;renderQuestion();}});
+$("btn-next").addEventListener("click",function(){if(state.idx<TOTAL-1){state.idx++;renderQuestion();}});
+$("btn-flag").addEventListener("click",function(){state.marked[state.idx]=!state.marked[state.idx];renderQuestion();});
+$("btn-navtoggle").addEventListener("click",function(){$("nav-panel").classList.toggle("hidden");renderNav();});
+
+/* generic confirm modal */
+var modalCb=null;
+function askConfirm(title,text,yesLabel,cb){
+  $("modal-title").textContent=title;$("modal-text").textContent=text;$("modal-yes").textContent=yesLabel;
+  modalCb=cb;$("modal-generic").classList.remove("hidden");
+}
+$("modal-no").addEventListener("click",function(){$("modal-generic").classList.add("hidden");modalCb=null;});
+$("modal-yes").addEventListener("click",function(){$("modal-generic").classList.add("hidden");if(modalCb){var cb=modalCb;modalCb=null;cb();}});
+
+$("btn-quit").addEventListener("click",function(){
+  askConfirm("Keluar dari ujian? / Quit exam?","Jawaban Anda pada sesi ini akan dibuang dan ujian tidak dinilai. / Your answers in this session will be discarded and the exam will not be scored.","Ya, Keluar / Yes, Quit",function(){stopTimer();show("scr-home");});
+});
+$("btn-toreview").addEventListener("click",function(){renderReview();show("scr-review");});
+$("btn-back-exam").addEventListener("click",function(){show("scr-exam");renderQuestion();});
+$("btn-endexam").addEventListener("click",function(){
+  var c=counts();
+  askConfirm("Kumpulkan ujian? / Submit exam?","Anda menjawab "+c.a+" dari "+TOTAL+" soal. Setelah dikumpulkan, jawaban tidak dapat diubah. / You answered "+c.a+" of "+TOTAL+" questions. After submitting, answers cannot be changed.","End Exam — Kumpulkan",function(){finishExam(false);});
+});
+
+function renderReview(){
+  var blank=[],mark=[],ans=[],k;
+  for(k=0;k<TOTAL;k++){
+    if(state.answers[k]<0)blank.push(k);
+    if(state.marked[k])mark.push(k);
+    if(state.answers[k]>=0)ans.push(k);
+  }
+  function list(arr,emptyMsg,pillCls,pillTxt){
+    if(!arr.length)return "<p class='small'>"+emptyMsg+"</p>";
+    var h="";
+    for(var j=0;j<arr.length;j++){var n=arr[j];h+="<div class='revitem'><span>Soal / Question "+(n+1)+" — "+esc(DOMAINS[QUESTIONS[n].d-1].en)+"</span><span class='pill "+pillCls+"'>"+pillTxt+"</span><button type='button' class='btn secondary' data-jump='"+n+"' style='min-height:40px;padding:6px 14px'>Buka / Open</button></div>";}
+    return h;
+  }
+  $("rev-blank-n").textContent=blank.length;$("rev-mark-n").textContent=mark.length;$("rev-ans-n").textContent=ans.length;
+  $("rev-blank").innerHTML=list(blank,"Tidak ada. Semua soal sudah dijawab. / None — all questions answered.","blank","Kosong / Blank");
+  $("rev-mark").innerHTML=list(mark,"Tidak ada soal yang ditandai. / No questions marked.","mark","Ditandai / Marked");
+  $("rev-ans").innerHTML=list(ans,"Belum ada soal yang dijawab. / No questions answered yet.","ans","Terjawab / Answered");
+  var all=document.querySelectorAll("[data-jump]");
+  for(var b=0;b<all.length;b++){(function(btn){btn.addEventListener("click",function(){state.idx=parseInt(btn.getAttribute("data-jump"),10);show("scr-exam");renderQuestion();});})(all[b]);}
+}
+
+function finishExam(auto){
+  if(state.finished)return;
+  state.finished=true;stopTimer();
+  var used=EXAM_SECONDS-state.left;
+  var correct=0,k;
+  for(k=0;k<TOTAL;k++){if(state.answers[k]===QUESTIONS[k].a)correct++;}
+  var pct=Math.round(correct/TOTAL*100);
+  var pass=correct>=PASS_MARK;
+  $("res-name").textContent=state.name;
+  $("res-mode").textContent=auto?"Full Simulation — waktu habis (auto-submit)":"Full Simulation — 75 soal / 120 menit";
+  $("res-score").textContent=correct;
+  $("res-pct").textContent=pct+"%";
+  $("res-correct").textContent=correct;
+  $("res-wrong").textContent=(TOTAL-correct);
+  $("res-time").textContent=fmtUsed(used);
+  var v=$("res-verdict");
+  v.textContent=pass?"LULUS / PASS":"BELUM LULUS / NOT PASSED";
+  v.className="verdict "+(pass?"pass":"fail");
+  $("res-note").textContent=pass
+    ? "Selamat! Skor Anda mencapai ambang kelulusan 70% (53 benar). Pertahankan penguasaan domain yang masih lemah di bawah ini sebelum ujian sebenarnya."
+    : "Skor Anda belum mencapai ambang kelulusan 70% (dibutuhkan 53 benar, Anda mendapat "+correct+"). Pelajari pembahasan dan fokus pada domain terlemah di bawah ini, lalu coba lagi.";
+  renderDomainBreakdown();
+  renderAnswerReview();
+  show("scr-result");
+}
+function renderDomainBreakdown(){
+  var html="";
+  for(var d=0;d<DOMAINS.length;d++){
+    var tot=0,cor=0,k;
+    for(k=0;k<TOTAL;k++){if(QUESTIONS[k].d===DOMAINS[d].n){tot++;if(state.answers[k]===QUESTIONS[k].a)cor++;}}
+    var pct=tot?Math.round(cor/tot*100):0;
+    html+="<div style='margin:12px 0'><div style='display:flex;justify-content:space-between;gap:10px;font-size:14.5px'><span><b>"+DOMAINS[d].n+". "+esc(DOMAINS[d].en)+"</b></span><span><b>"+cor+"/"+tot+"</b> ("+pct+"%)</span></div><div class='dbar'><i class='"+(pct<60?"weak":"")+"' style='width:"+pct+"%'></i></div></div>";
+  }
+  $("res-cats").innerHTML=html;
+}
+function renderAnswerReview(){
+  var lang=state.lang,letters=["A","B","C","D"],html="";
+  for(var k=0;k<TOTAL;k++){
+    var q=QUESTIONS[k],d=domOf(q);
+    var userAns=state.answers[k];
+    var right=userAns===q.a;
+    var userTxt=userAns>=0?qOpts(q,lang==="id"?"id":"en")[userAns]:"— (tidak dijawab / unanswered)";
+    var corrTxt=qOpts(q,lang==="id"?"id":"en")[q.a];
+    html+="<div class='ansitem'>"
+      +"<span class='st "+(right?"right":"wrong")+"'>"+(right?"✓ BENAR / CORRECT":"✗ "+(userAns<0?"TIDAK DIJAWAB / UNANSWERED":"SALAH / WRONG"))+"</span>"
+      +" <span class='tag'>Domain "+d.n+": "+esc(lang==="id"?d.id:d.en)+"</span>"
+      +"<p style='margin:10px 0 2px'><b>Soal "+(k+1)+".</b> "+esc(qText(q,lang==="id"?"id":"en"))+"</p>";
+    if(lang==="both"){html+="<p class='small' style='margin:0 0 4px'>"+esc(q.id[0])+"</p>";}
+    html+="<p style='margin:4px 0'>Jawaban Anda / Your answer: <b>"+(userAns>=0?letters[userAns]+". ":"")+esc(userTxt)+"</b></p>"
+      +"<p style='margin:4px 0'>Jawaban benar / Correct answer: <b>"+letters[q.a]+". "+esc(corrTxt)+"</b></p>"
+      +"<div class='expl'><b>Pembahasan / Explanation:</b> "+esc(qExpl(q,lang==="id"?"id":"en"));
+    if(lang==="both"){html+="<div class='eid' style='margin-top:6px'>"+esc(q.id[2])+"</div>";}
+    html+="</div></div>";
+  }
+  $("res-list").innerHTML=html;
+}
+$("btn-retry").addEventListener("click",function(){startExam();});
+$("btn-back-home").addEventListener("click",function(){show("scr-home");});
+</script>
+</body>
+</html>
